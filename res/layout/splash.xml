@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/ll" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:gravity="top">
+
+	<TableLayout android:id="@+id/tableLayout1" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_below="@+id/textview">
+		<ProgressBar android:layout_height="match_parent" android:layout_width="wrap_content" android:id="@+id/progressBar1" android:layout_gravity="center"></ProgressBar>
+	</TableLayout>
+	<TextView android:id="@+id/textview" android:layout_height="wrap_content" android:layout_width="fill_parent" android:text="@string/Infotext" android:layout_alignParentTop="true"></TextView>
+
+
+
+</RelativeLayout>

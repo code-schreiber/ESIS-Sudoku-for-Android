@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="Infotext">developed by Sebastian from ESIS</string>
+    <string name="app_name">ESIS Sudoku!</string>
+    <string name="keepPlayingText">ALMOST DONE!!! \nIt seems your sudoku has still some errors!</string>
+    <string name="no_help_needed">No need to help!\nYour Sudoku is full.</string>
+</resources>
