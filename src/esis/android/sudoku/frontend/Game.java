@@ -1,4 +1,4 @@
-package esis.sudoku.android.frontend;
+package esis.android.sudoku.frontend;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,9 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
-import esis.sudoku.android.R;
-import esis.sudoku.android.backend.BackendSudoku;
-import esis.sudoku.android.backend.MyApp;
+import esis.android.sudoku.backend.BackendSudoku;
+import esis.android.sudoku.backend.MyApp;
+import esis.android.sudoku.R;
+
 import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,7 +31,7 @@ import android.widget.Toast;
 
 public class Game extends Activity {
 	private static final String TAG = Game.class.getSimpleName();
-    private EditText guiText;
+	private EditText guiText;
   	private final int SIZE = BackendSudoku.SIZE;
 	private BackendSudoku backendsudoku;
 	
@@ -38,7 +39,7 @@ public class Game extends Activity {
 	private Button ResetButton;
 	private Button HelpButton;
 	private Button PauseButton;
-	private Button gotoMenuButton;
+	private Button saveButton;
 //	private Chronometer chrono;
 //	private String timepaused;//FIXME
 //	private ProgressDialog dialog;
@@ -59,7 +60,7 @@ public class Game extends Activity {
 	private void NewGame(){
 		MyApp myapp = (MyApp) getApplication();
 		backendsudoku = new BackendSudoku();
-		if (!MyApp.LOAD_GAME){
+		if (!MyApp.saved_game_exists){
 			Log.d(TAG, "Creating grid..............");
 			backendsudoku.create_game(myapp.getdifficulty());
 			Log.d(TAG, "Grid Created...............");
@@ -134,22 +135,17 @@ public class Game extends Activity {
 	    }
 	}			
 
-	private void gotoMenu(){
-		Toast.makeText(this, "Saving your Game", Toast.LENGTH_SHORT).show();		
-		saveGame();				
-	    this.finish();
-	}
-
 	private void saveGame() {
 
+	    		Toast.makeText(this, "Saving Game", Toast.LENGTH_SHORT).show();
 
 			try {
-				FileOutputStream fos_numbers;
-				FileOutputStream fos_cells;//XXX maybe do it global in myapp
-				fos_numbers = openFileOutput(MyApp.NUMBERS_FILE, Context.MODE_PRIVATE);
-				MyApp.dos_numbers = new DataOutputStream(fos_numbers);
-				fos_cells = openFileOutput(MyApp.CELLTYPE_FILE, Context.MODE_PRIVATE);
-				MyApp.dos_cells = new DataOutputStream(fos_cells);
+
+				FileOutputStream fos;//XXX maybe do it global in myapp
+
+
+				fos = openFileOutput(MyApp.SUDOKU_SAVED_FILE, Context.MODE_PRIVATE);
+				MyApp.dos = new DataOutputStream(fos);
 				
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -157,81 +153,115 @@ public class Game extends Activity {
 			}
 			
 			for(int row = 0; row < SIZE; ++row)
-	    		for(int column = 0; column < SIZE; ++column){
-	    			
-	    		    guiText = (EditText) findViewById(getEditTextId(row,column));	      			
-	        		
-	    		    
-	        		try {
-	        			//Write the number
-						MyApp.dos_numbers.writeChars(guiText.getText().toString());
+        	    		for(int column = 0; column < SIZE; ++column){
+        	    			       	        		        	    		    
+        	        		try {
+        	        		
+        	        		//Write cell from solved
+					MyApp.dos.writeByte(backendsudoku.solved_grid[row][column]);
+					
+					//Write cell from unsolved
+					MyApp.dos.writeByte(backendsudoku.unsolved_grid[row][column]);
+					
+					//Write cells entered from user
 
-		        		//Write if it was a given cell or not
-		    		    if (guiText.isFocusable() && guiText.isEnabled())
-							MyApp.dos_cells.writeBoolean(!MyApp.GIVEN);						
-						else
-		        			MyApp.dos_cells.writeBoolean(MyApp.GIVEN);  
+    					guiText = (EditText) findViewById(getEditTextId(row,column));
+    					if (guiText.isFocusable() && guiText.isEnabled() && !guiText.getText().toString().equals(""))
+
+
+
+
+    	        		    		MyApp.dos.writeByte(Integer.parseInt(guiText.getText().toString()));
+    					else
+		        			MyApp.dos.writeByte(0);//Cell was either empty or given
+
+
+
+
+
+
 	    		    
 	        		}catch (IOException e) {
 	    				// TODO Auto-generated catch block
-	    				e.printStackTrace();
-	    			}
+        	    				e.printStackTrace();
+        	    			}
 
-	        	}
+
+        	    		}
+
 	    	
 			try {
-				MyApp.dos_numbers.close();//closes fos also
-				MyApp.dos_cells.close();
+				MyApp.dos.close();//closes fos also
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			MyApp.LOAD_GAME = true;//set flag to load this saved game the next time a game starts
+			MyApp.saved_game_exists = true;//set flag to load this saved game the next time a game starts
 	}
 
 	private void loadGame() {
 
-		FileInputStream fis_numbers = null;
-		FileInputStream fis_cells = null;		
+		FileInputStream fis = null;
+		int[][] user_entered_numbers = new int[SIZE][SIZE];
+
 		try {
-			fis_numbers = openFileInput(MyApp.NUMBERS_FILE);
-			fis_cells = openFileInput(MyApp.CELLTYPE_FILE);
+			fis = openFileInput(MyApp.SUDOKU_SAVED_FILE);
+
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+    	    Toast.makeText(this, "No game to load", Toast.LENGTH_SHORT).show();
 			e.printStackTrace();
 		}
 
 		for(int row = 0; row < SIZE; ++row)
-    		for(int column = 0; column < SIZE; ++column){
-    			
-    		    guiText = (EditText) findViewById(getEditTextId(row,column));	      			
-    			try {  		
-		    	//Write the number
-				guiText.setText(fis_numbers.read());
+        		for(int column = 0; column < SIZE; ++column){
+        		    try {
+    	        		//Read cell from solved
+            		    	backendsudoku.solved_grid[row][column] = fis.read();    				
+    				//Read cell from unsolved
+            		    	backendsudoku.unsolved_grid[row][column] = fis.read();            		    	
+    				//Read cells entered from user
+            		    	user_entered_numbers[row][column] = fis.read();
+    				 
 
-        		//Write if it was a given cell or not
-    		    if (fis_cells.read() == 0){//if not given
-					guiText.setFocusable(true);
-					guiText.setEnabled(true);
-    		    }
-				//TODO do i need an else?
 
-        		}catch (IOException e) {
-    				// TODO Auto-generated catch block
-    				e.printStackTrace();
-    			}
 
-        	}
+
+
+
+
+
+
+
+
+
+
+        		    }catch (IOException e) {
+	    			// TODO Auto-generated catch block
+	    			e.printStackTrace();
+        	    	    }
+        		}
+
+
+
     	
 		try {
-			fis_numbers.close();
-			fis_cells.close();
+			fis.close();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		copyGrid();//write the unsolved_grid in the GUI		
+		for(int row = 0; row < SIZE; ++row)//write user entered numbers in the GUI
+        		for(int column = 0; column < SIZE; ++column)
+                		if (user_entered_numbers[row][column] != 0){
+                		    	guiText = (EditText) findViewById(getEditTextId(row,column));
+                		 	guiText.setText(Integer.toString(user_entered_numbers[row][column]));
+                		}   
 	}	
 	
 	private void InitButtons() {
@@ -240,7 +270,7 @@ public class Game extends Activity {
 		ResetButton = (Button) findViewById(R.id.ResetButton);
 		HelpButton = (Button) findViewById(R.id.HelpButton);
 		PauseButton = (Button) findViewById(R.id.PauseButton);
-		gotoMenuButton = (Button) findViewById(R.id.gotoMenuButton);
+		saveButton = (Button) findViewById(R.id.SaveButton);
 		
 		CheckButton.setOnClickListener(new View.OnClickListener() {
 	    public void onClick(View v) {
@@ -262,9 +292,9 @@ public class Game extends Activity {
 	    	PauseGame();
 	    }
 	});
-		gotoMenuButton.setOnClickListener(new View.OnClickListener() {
+		saveButton.setOnClickListener(new View.OnClickListener() {
 	    public void onClick(View v) {
-	    	gotoMenu();
+	    	saveGame();
 	    }
 	});
 	
@@ -297,23 +327,25 @@ public class Game extends Activity {
     	}
     }
 	
-    private int getEditTextId(int row, int column) {
+	private int getEditTextId(int row, int column) {
 		TableLayout tl = (TableLayout) findViewById(R.id.SudokuGridLayout);
 		return ((TableRow) tl.getChildAt(row)).getChildAt(column).getId();
 	}
 
 	private void CheckGrid(){
 
+	boolean action = true;//Unchecking
 	if(CheckButton.getText().equals(" Check "))
-		check(false);//Checking	
-	else		
-		check(true);//Unchecking
+		action = false;//Checking	//FIXME inverse logic duh!
+		
+	check(action);
+
 	
 	if(sudokuIsComplete())
 		if(sudokuIsCorrect())
 			gameWon();
 		else
-			keepPlaying();
+			keepPlaying(action);
 }
 	
 	private void check(boolean action){
@@ -334,7 +366,7 @@ public class Game extends Activity {
     	    for(int column = 0; column < SIZE; ++column){
         		guiText = (EditText) findViewById(getEditTextId(row,column));
         		if (guiText.isEnabled()){
-        			//guiText.setFocusable(action);
+        			//guiText.setFocusable(action);//TODO BUG but no ideas
         			if (!guiText.getText().toString().equals("")) {        		
 	            		if (action == true)
 	            		    guiText.setTextColor(getResources().getColor(R.color.solid_black));//TODO make cell normal again (black?)
@@ -347,7 +379,7 @@ public class Game extends Activity {
 
 	private void markMistakes(int row, int column) {
 	    if (guiText.getText().toString().equals(Integer.toString(backendsudoku.solved_grid[row][column])))
-	    	guiText.setTextColor(getResources().getColor(R.color.solid_green));//make green
+	    	guiText.setTextColor(getResources().getColor(R.color.solid_blue));//good //TODO IDEA: only mark errors.
 	    else
 	    	guiText.setTextColor(getResources().getColor(R.color.solid_red));//make red
 	}
@@ -356,7 +388,7 @@ public class Game extends Activity {
 	    for(int row = 0; row < SIZE; ++row)
 		for(int column = 0; column < SIZE; ++column){
 		    guiText = (EditText) findViewById(getEditTextId(row,column));
-		    	if(guiText.getText().toString().equals(""))//TODO does this work?
+		    	if(guiText.getText().toString().equals(""))
 		    	    return false;
         	}
         	return true;
@@ -372,32 +404,31 @@ public class Game extends Activity {
 	return true;
 }
 
-	private void keepPlaying(){
-
-//	msgBox.setIconPixmap(QPixmap("icon.png")); TODO maybe TODO
-
-		Toast.makeText(this, R.string.keepPlayingText, Toast.LENGTH_LONG).show();
+	private void keepPlaying(boolean action){
+		if (!action)
+			Toast.makeText(this, R.string.keepPlayingText, Toast.LENGTH_LONG).show();
 	}
 
 	private void gameWon(){
 	
 //chrono.stop();
-	
+	    MyApp.saved_game_exists = false;//no chance to load an already won game
+       	check(true);//uncheck the game in background  
+
 	    new AlertDialog.Builder(this)
 	    	.setIcon(R.drawable.icon)
-            .setTitle("Congrats!")
+            .setTitle("Congrats, You Won!")
             .setMessage("Tap OK if you want to play again or Menu to exit the game")
             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    /* User clicked OK so do some stuff */
-                	check(true);
+                    /* User clicked OK so do some stuff */ 
                 	NewGame();            		
                 }
             })
             .setNegativeButton("Menu", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
                     /* User clicked Cancel so do some stuff */
-                	gotoMenu();
+                	Game.this.finish();
                 }
             })
             .create().show();

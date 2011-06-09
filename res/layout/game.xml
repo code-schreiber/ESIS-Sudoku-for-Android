@@ -16,7 +16,7 @@
 		<Button android:layout_width="wrap_content"  android:text="Pause" android:id="@+id/PauseButton" android:layout_height="match_parent"></Button>
 		<Button android:layout_width="wrap_content"  android:text=" Check " android:id="@+id/CheckButton" android:layout_height="match_parent"></Button>
 		<Button android:layout_width="wrap_content" android:text="Help" android:id="@+id/HelpButton" android:layout_height="match_parent"></Button>
-		<Button android:layout_width="wrap_content"  android:text="Exit" android:id="@+id/gotoMenuButton" android:layout_height="match_parent"></Button>
+		<Button android:layout_width="wrap_content"  android:text="Save" android:id="@+id/SaveButton" android:layout_height="match_parent"></Button>
 	</LinearLayout>
 
 	<TableLayout android:stretchColumns="9"

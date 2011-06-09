@@ -1,4 +1,4 @@
-package esis.sudoku.android.backend;
+package esis.android.sudoku.backend;
 
 import java.util.Random;
 
@@ -113,7 +113,7 @@ public class BackendSudoku {
 		int anzZahlen = 0; // zu entfernende Zahlen
 
 		if (difficulty == 1)
-			anzZahlen = 1;//FIXME 35 statt 1
+			anzZahlen = 35;//TODO make ints for choosing dificulty.. idea! 
 		else if (difficulty == 2)
 			anzZahlen = 45;
 		else if (difficulty == 3)
