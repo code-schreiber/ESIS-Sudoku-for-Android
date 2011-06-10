@@ -82,30 +82,31 @@ public class Welcome extends Activity{
 		
 		NewGameButton.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
-			if(MyApp.saved_game_exists){
-			    new AlertDialog.Builder(v.getContext())
-		            .setMessage("This will delete a previously saved game")
-		            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-		                public void onClick(DialogInterface dialog, int whichButton) {
-		                    /* User clicked OK so start new game */  
-		                    MyApp.saved_game_exists = false;
-		                    NewGameButton.performClick();
-		                }
-		            })
-		            .setNegativeButton("Load Game Instead", new DialogInterface.OnClickListener() {
-		                public void onClick(DialogInterface dialog, int whichButton) {
-		                    /* load the game*/
-		                    LoadGameButton.performClick();
-		                }
-		            })
-		            .create().show();
-			}
-			else{
-	                    //XXX MyApp.dialog = ProgressDialog.show(Welcome.this, "Loadin'", "Please wait while creating your Sudoku...", true, true);
-        		    Intent intent = new Intent();
-        		    intent.setClass(Welcome.this, Game.class);		    	
-        		    Welcome.this.startActivity(intent);
-			}
+				if(MyApp.saved_game_exists){
+				    new AlertDialog.Builder(v.getContext())
+			            .setMessage("This will delete a previously saved game")
+			            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			                public void onClick(DialogInterface dialog, int whichButton) {
+			                    /* User clicked OK so start new game */  
+			                    MyApp.saved_game_exists = false;
+			                    NewGameButton.performClick();
+			                }
+			            })
+			            .setNegativeButton("Load Game Instead", new DialogInterface.OnClickListener() {
+			                public void onClick(DialogInterface dialog, int whichButton) {
+			                    /* load the game*/
+			                    LoadGameButton.performClick();
+			                }
+			            })
+			            .create().show();
+				}
+				else{
+		                    //XXX MyApp.dialog = ProgressDialog.show(Welcome.this, "Loadin'", "Please wait while creating your Sudoku...", true, true);
+					 	Toast.makeText(v.getContext(), "Creating Sudoku", Toast.LENGTH_LONG).show();
+						Intent intent = new Intent();
+	        		    intent.setClass(Welcome.this, Game.class);		    	
+	        		    Welcome.this.startActivity(intent);
+				}
 
 		    }
 	    });
