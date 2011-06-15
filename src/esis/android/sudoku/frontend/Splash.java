@@ -1,19 +1,15 @@
 package esis.android.sudoku.frontend;
 
-import esis.android.sudoku.R;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.View;
-import android.view.Window;
 import android.widget.RelativeLayout;
+import esis.android.sudoku.R;
 
 public class Splash extends Activity{
 
-boolean alreadyStarted = false;
+	boolean alreadyStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +25,6 @@ boolean alreadyStarted = false;
     	splashLayout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	startNextActivity();
-            	Thread.currentThread().stop();
             }
     	});
 
@@ -50,7 +45,6 @@ boolean alreadyStarted = false;
                     //TODO go forth?
                 } finally {
                     startNextActivity();
-            		stop();
                 }
             }
         };

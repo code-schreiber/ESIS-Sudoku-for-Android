@@ -36,7 +36,8 @@
         <activity 
         	android:configChanges="orientation"
     		android:screenOrientation="portrait" 
-    		android:name=".frontend.Game">
+    		android:name=".frontend.Game"
+    		android:theme="@android:style/Theme.NoTitleBar">
         </activity>
         
 

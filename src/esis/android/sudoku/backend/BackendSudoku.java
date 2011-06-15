@@ -113,7 +113,7 @@ public class BackendSudoku {
 		int anzZahlen = 0; // zu entfernende Zahlen
 
 		if (difficulty == 1)
-			anzZahlen = 35;//TODO make ints for choosing dificulty.. idea! 
+			anzZahlen = 35;//TODO make ints for choosing dificulty.. idea! in MYApp and change them from settings?
 		else if (difficulty == 2)
 			anzZahlen = 45;
 		else if (difficulty == 3)
