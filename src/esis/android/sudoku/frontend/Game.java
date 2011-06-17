@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,7 +27,9 @@ import esis.android.sudoku.backend.MyApp;
 import esis.android.sudoku.backend.MyChronometer;
 
 //Sign for 12 years (2033)
-
+//TODO release focus when number is typed in (listener to all cells)
+//TODO make highscores with view
+//TODO make settings with view
 public class Game extends Activity {
 
 	private static final String TAG = Game.class.getSimpleName();

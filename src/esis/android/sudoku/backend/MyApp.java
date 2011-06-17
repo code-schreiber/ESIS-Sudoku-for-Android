@@ -31,11 +31,12 @@ public class MyApp extends Application {
 	}
 	
 	public static long getsavedTime() {
-		return savedTime  + SystemClock.elapsedRealtime();		
+		Log.d(TAG, "time was: "+savedTime);
+		return savedTime  + System.currentTimeMillis();		
 	}
 	
 	public static void saveTime(long base) {
-		savedTime = base - SystemClock.elapsedRealtime();		
+		savedTime = base - System.currentTimeMillis();;		
 	}
 
 	public void checkForSavedGame() {

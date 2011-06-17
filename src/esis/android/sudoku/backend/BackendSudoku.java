@@ -29,7 +29,7 @@ public class BackendSudoku {
 		public int getZeile(){return zeile;}
 		public void setZeile(int x){zeile = x;}
 		public int getSpalte(){return spalte;}
-		private void setSpalte(int x){spalte = x;}//FIXME
+		private void setSpalte(int x){spalte = x;}//FIXME?
 	}
 	
 	Zellen[] pZellen;
@@ -117,8 +117,7 @@ public class BackendSudoku {
 		else if (difficulty == 2)
 			anzZahlen = 45;
 		else if (difficulty == 3)
-			anzZahlen = 63; // Maximale Anzahl Zahlen, die theoretisch entfernt
-		// werden koennten
+			anzZahlen = 63; // Maximale Anzahl Zahlen, die theoretisch entfernt werden koennten
 
 		for (int i = 0; i < SIZE; ++i)// belegte Zellen in feld speichern
 			for (int j = 0; j < SIZE; ++j) {
