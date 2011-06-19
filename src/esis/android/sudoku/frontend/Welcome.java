@@ -24,7 +24,7 @@ public class Welcome extends Activity{
 	private static final String TAG = Welcome.class.getSimpleName();
 	private MyApp myapp;
 	private RadioGroup difficultyRadioGroup;
-	private Button NewGameButton;
+	private Button NewGameButton;//FIXME make the cast like in Game if it worked
 	private Button LoadGameButton;
 	private Button FeedbackButton;
 	private Button ExitButton;
@@ -37,7 +37,7 @@ public class Welcome extends Activity{
         InitRadioGroup();
         InitButtons();
     	myapp = (MyApp) getApplicationContext();
-    	setDifficulty();//Set the difficulty
+    	MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());//Set the difficulty
     	myapp.checkForSavedGame();
     }
     
@@ -49,7 +49,7 @@ public class Welcome extends Activity{
 	    	RadioButton radioButton = (RadioButton)difficultyRadioGroup.getChildAt(i);
 		    radioButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {				
-			    setDifficulty();
+			    MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());
 			}
 		    });
 	    }
@@ -102,23 +102,6 @@ public class Welcome extends Activity{
 		});	    
 	}
 
-	private void setDifficulty(){	    
-	    switch (difficultyRadioGroup.getCheckedRadioButtonId()) {
-	        case R.id.radio_easy:
-	            myapp.setdifficulty(1);//Easy
-	            break;
-	        case R.id.radio_medium:
-	            myapp.setdifficulty(2);//Medium
-	            break;
-	        case R.id.radio_hard:
-	            myapp.setdifficulty(3);//Hard
-	            break;
-	        default:
-	            break;
-	    }
-	    Log.d(TAG, "difficulty changed to "+myapp.getdifficulty());	    
-	}
-	
 	private void ExitGame(){
 	    Log.d(TAG, "Exiting App");
 	    this.finish();

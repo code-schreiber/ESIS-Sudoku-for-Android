@@ -1,24 +1,23 @@
 package esis.android.sudoku.frontend;
 
 
-import java.io.DataOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Random;
 
 import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 import esis.android.sudoku.R;
 import esis.android.sudoku.backend.BackendSudoku;
@@ -36,13 +35,6 @@ public class Game extends Activity {
 	private final int SIZE = BackendSudoku.SIZE;
 	private EditText guiText;
 	private BackendSudoku backendsudoku;
-
-	private Button CheckButton;
-	private Button ResetButton;
-	private Button HelpButton;
-	private Button PauseButton;
-	private Button saveButton;
-	private MyChronometer chronometer;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -71,48 +63,44 @@ public class Game extends Activity {
 			ResetGame();
 			
 		}
-
-		CheckButton.setEnabled(true);
-		HelpButton.setEnabled(true);
-		ResetButton.setEnabled(true);
-		PauseButton.setEnabled(true);
-
-		chronometer.start();
+		((Button) findViewById(R.id.CheckButton)).setEnabled(true);
+		enableOrDisableHelpResetPause(true);
+		((MyChronometer) findViewById(R.id.chronometer)).start();
 	}
 
 	private void PauseGame() {
 		boolean action;
 		final View sudokuGridLayout = findViewById(R.id.SudokuGridLayout);
+		Button button = (Button) findViewById(R.id.PauseButton);
 		
 		if (sudokuGridLayout.getVisibility() == View.VISIBLE) {
 			Log.d(TAG, "Pausing Game");
 			action = false;// pause
-			chronometer.pause();
-			PauseButton.setText("Resume");
+			((MyChronometer) findViewById(R.id.chronometer)).pause();
+			button.setText("Resume");
 			sudokuGridLayout.setVisibility(View.GONE);// INVISIBLE
 		} else {
 			Log.d(TAG, "Resuming Game");
 			action = true;// Resume
-			chronometer.resume();
-			PauseButton.setText("Pause");
+			((MyChronometer) findViewById(R.id.chronometer)).resume();
+			button.setText("Pause");
 			sudokuGridLayout.setVisibility(View.VISIBLE);// VISIBLE
 		}
 
-		CheckButton.setEnabled(action);
-		HelpButton.setEnabled(action);
-		ResetButton.setEnabled(action);
+		((Button) findViewById(R.id.CheckButton)).setEnabled(action);
+		((Button) findViewById(R.id.HelpButton)).setEnabled(action);
+		((Button) findViewById(R.id.ResetButton)).setEnabled(action);
 
 	}
 
 	private void ResetGame() {
 		copyGrid();
-		chronometer.reset();
+		((MyChronometer) findViewById(R.id.chronometer)).reset();
 	}
 
 	private void HelpGame() {
 		if (sudokuIsComplete()) {
-			Toast.makeText(this, R.string.no_help_needed, Toast.LENGTH_SHORT)
-					.show();
+			Toast.makeText(this, R.string.no_help_needed, Toast.LENGTH_SHORT).show();
 			return;
 		}
 		// Look for an empty place, a better implementation would know which
@@ -133,118 +121,119 @@ public class Game extends Activity {
 	}
 
 	private void saveGame() {
-
 		Toast.makeText(this, R.string.saving_game, Toast.LENGTH_SHORT).show();
+		//Open file
+		long base = ((MyChronometer) findViewById(R.id.chronometer)).getBase();
+		FileSystemTool.openFile(getApplicationContext(), base, MyApp.getdifficulty());
+		int[][] guiCells = new int[SIZE][SIZE];
+		copyGuiCellsToArray(guiCells);
+		FileSystemTool.writeGameToFile(backendsudoku.solved_grid, backendsudoku.unsolved_grid, guiCells);
+	}
 
-		//Save Chronometer's time
-		MyApp.saveTime(chronometer.getBase());
-		// set flag to load this saved game the next time a game starts
-		MyApp.saved_game_exists = true;
-		try {
-			MyApp.fos = openFileOutput(MyApp.SUDOKU_SAVED_FILE, Context.MODE_PRIVATE);
-			MyApp.dos = new DataOutputStream(MyApp.fos);
-		} catch (FileNotFoundException e) {
-			MyApp.saved_game_exists = false;
-			Log.e(TAG, e.getMessage());//TODO Make all exceptions log to console
-		}
-		
-		for (int row = 0; row < SIZE; ++row)
-			for (int column = 0; column < SIZE; ++column){
-				guiText = (EditText) findViewById(getEditTextId(row, column));
-				int userCell = 0;
-				if (guiText.isFocusable() && guiText.isEnabled() && !guiText.getText().toString().equals(""))
-					userCell = Integer.parseInt(guiText.getText().toString());
-				FileSystemTool.writeBytes(backendsudoku.solved_grid[row][column], backendsudoku.unsolved_grid[row][column], userCell );
-			}
-		FileSystemTool.closeDos();
-		
+	private void copyGuiCellsToArray(int[][] guiCells) {
+	    for (int row = 0; row < SIZE; ++row)
+	    	for (int column = 0; column < SIZE; ++column){
+	    		guiText = (EditText) findViewById(getEditTextId(row, column));				
+	    		if (guiText.isFocusable() && guiText.isEnabled() && !guiText.getText().toString().equals(""))
+	    		    guiCells[row][column] = Integer.parseInt(guiText.getText().toString());
+	    		else
+	    		    guiCells[row][column] = 0;
+	    	}
 	}
 
 	private void loadGame() {
-
 		FileInputStream fis = null;
 		int[][] user_entered_numbers = new int[SIZE][SIZE];
 		
-		try {
-			fis = openFileInput(MyApp.SUDOKU_SAVED_FILE);
-	
-		} catch (FileNotFoundException e) {
-			Toast.makeText(this, R.string.no_game_to_load, Toast.LENGTH_SHORT).show();
-			Log.e(TAG, e.getMessage());
-		}
-		
-
-		
-		for (int row = 0; row < SIZE; ++row)
-			for (int column = 0; column < SIZE; ++column) {
-				// Read cell from solved
-				backendsudoku.solved_grid[row][column] = FileSystemTool.readBytes(fis);
-				// Read cell from unsolved
-				backendsudoku.unsolved_grid[row][column] = FileSystemTool.readBytes(fis);
-				// Read cells entered from user
-				user_entered_numbers[row][column] = FileSystemTool.readBytes(fis);
-			}	
-		
+		fis = FileSystemTool.openFileToLoad(fis, getApplicationContext());
+		int loadedDifficulty = FileSystemTool.readBytes(fis);
+		loadDifficulty(loadedDifficulty);
+		long savedTime = FileSystemTool.getsavedTime(fis);
+		loadData(fis, user_entered_numbers);
 		FileSystemTool.closeFis(fis);
 		
-		// write the unsolved_grid in the GUI
-		copyGrid();
-		
+		// write the unsolved grid in the GUI
+		copyGrid();		
 		// write user entered numbers in the GUI
-		for (int row = 0; row < SIZE; ++row)
-			for (int column = 0; column < SIZE; ++column)
-				if (user_entered_numbers[row][column] != 0) {
-					guiText = (EditText) findViewById(getEditTextId(row, column));
-					guiText.setText(Integer.toString(user_entered_numbers[row][column]));
-				}
-		
+		copyUserNumbersToGui(user_entered_numbers);		
 		//Start Chronometer from saved time
-		chronometer.setBase(MyApp.getsavedTime());
-		chronometer.start();
-		
+		((MyChronometer) findViewById(R.id.chronometer)).setBase(savedTime);
+		((MyChronometer) findViewById(R.id.chronometer)).start();
 	}
 
-	private void InitButtons() {
+	private void loadDifficulty(int loadedDifficulty) {
+	    Log.d(TAG, "Loading difficulty: " + loadedDifficulty);
+	    if (loadedDifficulty == 1)
+	        loadedDifficulty = R.id.radio_easy;
+	    else if (loadedDifficulty == 2)
+	        loadedDifficulty = R.id.radio_medium;
+	    else if (loadedDifficulty == 3)
+	    	loadedDifficulty = R.id.radio_hard;
+	    else
+		return;
+	       
+	    ((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).check(loadedDifficulty);
+	    MyApp.setDifficulty(((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).getCheckedRadioButtonId());
+	}
 
-		CheckButton = (Button) findViewById(R.id.CheckButton);
-		ResetButton = (Button) findViewById(R.id.ResetButton);
-		HelpButton = (Button) findViewById(R.id.HelpButton);
-		PauseButton = (Button) findViewById(R.id.PauseButton);
-		saveButton = (Button) findViewById(R.id.SaveButton);
-		
-		chronometer = (MyChronometer) findViewById(R.id.chronometer);
+	private void copyUserNumbersToGui(int[][] user_entered_numbers) {
+	    for (int row = 0; row < SIZE; ++row)
+	        for (int column = 0; column < SIZE; ++column)
+	    	if (user_entered_numbers[row][column] != 0) {
+	    	    guiText = (EditText) findViewById(getEditTextId(row, column));
+	    	    guiText.setText(Integer.toString(user_entered_numbers[row][column]));
+	    	}
+	}
 
-		CheckButton.setOnClickListener(new View.OnClickListener() {
+	private void loadData(FileInputStream fis, int[][] user_entered_numbers) {
+	    for (int row = 0; row < SIZE; ++row)
+	    	for (int column = 0; column < SIZE; ++column) {
+	    		// Read cell from solved
+	    		backendsudoku.solved_grid[row][column] = FileSystemTool.readBytes(fis);
+	    		// Read cell from unsolved
+	    		backendsudoku.unsolved_grid[row][column] = FileSystemTool.readBytes(fis);
+	    		// Read cells entered from user
+	    		user_entered_numbers[row][column] = FileSystemTool.readBytes(fis);
+	    	}
+	}
+
+	private void InitButtons() {	    	
+		Button button;
+
+		button = (Button) findViewById(R.id.CheckButton);
+		button.setEnabled(false);
+		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				CheckGrid();
 			}
 		});
-		HelpButton.setOnClickListener(new View.OnClickListener() {
+		button = (Button) findViewById(R.id.HelpButton);
+		button.setEnabled(false);
+		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				HelpGame();
 			}
 		});
-		ResetButton.setOnClickListener(new View.OnClickListener() {
+		button = (Button) findViewById(R.id.ResetButton);
+		button.setEnabled(false);
+		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				ResetGame();
 			}
 		});
-		PauseButton.setOnClickListener(new View.OnClickListener() {
+		button = (Button) findViewById(R.id.PauseButton);
+		button.setEnabled(false);
+		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				PauseGame();
 			}
 		});
-		saveButton.setOnClickListener(new View.OnClickListener() {
+		button = (Button) findViewById(R.id.SaveButton);
+		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				saveGame();
 			}
 		});
-
-		CheckButton.setEnabled(false);//TODO make a group for this buttons to enable & desable
-		HelpButton.setEnabled(false);
-		ResetButton.setEnabled(false);
-		PauseButton.setEnabled(false);
-
 	}
 
 	private void copyGrid() {
@@ -252,7 +241,7 @@ public class Game extends Activity {
 			for (int column = 0; column < SIZE; ++column) {
 				guiText = (EditText) findViewById(getEditTextId(row, column));
 				int backendCellNumber = backendsudoku.unsolved_grid[row][column];
-				if (backendCellNumber != 0)// TODO make new class?
+				if (backendCellNumber != 0)
 					setGivenCell(guiText, backendCellNumber);
 				else
 					setUserCell(guiText);
@@ -282,7 +271,7 @@ public class Game extends Activity {
 	private void CheckGrid() {
 
 		boolean checking = false;// Unchecking
-		if (CheckButton.getText().equals(" Check "))// TODO make icons?
+		if (((Button) findViewById(R.id.CheckButton)).getText().equals(" Check "))
 			checking = true;// Checking
 
 		check(checking);
@@ -303,25 +292,30 @@ public class Game extends Activity {
 		else
 			text = " Check ";
 
-		CheckButton.setText(text);
-		HelpButton.setEnabled(!action);
-		ResetButton.setEnabled(!action);
-		PauseButton.setEnabled(!action);
-		saveButton.setEnabled(!action);
+		((Button) findViewById(R.id.CheckButton)).setText(text);
+		enableOrDisableHelpResetPause(!action);
+		((Button) findViewById(R.id.SaveButton)).setEnabled(!action);
 
-		for (int row = 0; row < SIZE; ++row)
-			for (int column = 0; column < SIZE; ++column) {
-				guiText = (EditText) findViewById(getEditTextId(row, column));
-				if (guiText.isFocusable()) {// if it is a user cell
-					guiText.setEnabled(!action);
-					if (!guiText.getText().toString().equals("")) {
-						if (!action)
-							guiText.setTextColor(getResources().getColor(R.color.solid_black));
-						else
-							markMistakes(row, column);
-					}
-				}
-			}
+
+        	for (int row = 0; row < SIZE; ++row)
+        	    for (int column = 0; column < SIZE; ++column) {
+        		guiText = (EditText) findViewById(getEditTextId(row, column));
+        		if (guiText.isFocusable()) {// if it is a user cell
+        		    guiText.setEnabled(!action);
+        		    if (!guiText.getText().toString().equals("")) {
+        			if (!action)
+        			    guiText.setTextColor(getResources().getColor(R.color.solid_black));
+        			else
+        			    markMistakes(row, column);
+        		    }
+        		}
+        	    }
+	}
+
+	private void enableOrDisableHelpResetPause(boolean b) {
+		((Button) findViewById(R.id.HelpButton)).setEnabled(b);
+		((Button) findViewById(R.id.ResetButton)).setEnabled(b);
+		((Button) findViewById(R.id.PauseButton)).setEnabled(b);	    
 	}
 
 	private void markMistakes(int row, int column) {
@@ -359,7 +353,7 @@ public class Game extends Activity {
 
 	private void gameWon() {
 
-		chronometer.stop();
+		((MyChronometer) findViewById(R.id.chronometer)).stop();
 		MyApp.saved_game_exists = false;// no chance to load an already won game
 		check(true);// uncheck the game in background
 
@@ -380,6 +374,8 @@ public class Game extends Activity {
 								Game.this.finish();
 							}
 						}).create().show();
+		//TODO here: save the time if its faster than THE HIGSCORE.
+		((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).getCheckedRadioButtonId();//TODO save checked radio button also when saving
 	}
 
 }

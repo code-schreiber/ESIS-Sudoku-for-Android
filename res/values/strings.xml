@@ -1,31 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
-    
-    <!-- =============================== -->
-    <!--           App strings           -->
-    <!-- =============================== -->
-    
-    <string name="Infotext">developed by Sebastian from ESIS</string>
-    <string name="app_name">ESISudoku</string>
-    <string name="keepPlayingText">Almost done!!! \nYour sudoku has still some errors!</string>
-    <string name="no_help_needed">Your Sudoku is full</string>
-    
-    
-    <!-- =============================== -->
-    <!--    Activity Specific strings    -->
-    <!-- =============================== -->
-    
-	<string name="chronometer_initial_format"><xliff:g id="initial-format">%s</xliff:g></string>
-    
+
+	<!-- =============================== -->
+	<!--           App strings           -->
+	<!-- =============================== -->
+
+	<string name="Infotext">developed by Sebastian from ESIS</string>
+	<string name="app_name">ESISudoku</string>
+	<string name="keepPlayingText">Almost done!!! \nYour sudoku has still some errors!</string>
+	<string name="no_help_needed">Your Sudoku is full</string>
+
+
+	<!-- =============================== -->
+	<!--    Activity Specific strings    -->
+	<!-- =============================== -->
+
+	<string name="Easy_initial_format">Easy: <xliff:g id="initial-format">%s</xliff:g></string>
+	<string name="Highscore_easy">Easy: %s</string>
+
+
 	<string name="Won_Title">Congrats, You Won!</string>
-    
-	<string name="Won_Mesage">Tap OK if you want to play again or Menu to exit the game</string>
-    
+
+	<string name="Won_Mesage">Tap OK if you want to play again or Menu to exit
+		the game</string>
+
 	<string name="no_game_to_load">No game to load</string>
-    
+
 	<string name="saving_game">Saving Game</string>
-    
-	<string name="Feedback_Message">Any comments or ideas are welcome.\nIf you want to share some piece of mind please send an Email to\nsebasguillen@gmail.com.\nWe would really apreciate it.</string>
+
+	<string name="Feedback_Message">Any comments or ideas are welcome.\nIf you want to
+		share some piece of mind please send an Email
+		to\nsebasguillen@gmail.com.\nWe would really apreciate it.</string>
+	<string name="Reset">Reset</string>
+	<string name="Highscores"><b>Highscores</b></string>
 
 </resources>

@@ -3,8 +3,6 @@
 	android:id="@+id/ll" android:layout_width="fill_parent"
 	android:layout_height="fill_parent" android:gravity="top">
 
-	<!--Dummy Layout for first Focus-->
-
 	<TextView android:layout_height="wrap_content" android:id="@+id/textview"
 		android:layout_width="fill_parent" android:text="@string/Infotext">
 	</TextView>
@@ -23,9 +21,12 @@
 		<Button android:text="Load Game" android:id="@+id/LoadGameButton" android:layout_width="fill_parent" android:layout_height="match_parent" android:layout_weight="1"></Button>
 		</TableRow>
 		<TableRow android:id="@+id/Row3" android:layout_height="wrap_content" android:baselineAligned="true" android:layout_width="match_parent" android:layout_weight="1" android:layout_gravity="center">
+		<Button android:text="Highscores" android:id="@+id/HighscoresButton" android:layout_width="fill_parent" android:layout_height="match_parent" android:layout_weight="1"></Button>
+		</TableRow>
+		<TableRow android:id="@+id/Row4" android:layout_height="wrap_content" android:baselineAligned="true" android:layout_width="match_parent" android:layout_weight="1" android:layout_gravity="center">
 		<Button android:text="Feedback" android:id="@+id/FeedbackButton" android:layout_width="fill_parent" android:layout_height="match_parent" android:layout_weight="1"></Button>
 		</TableRow>
-		<TableRow android:id="@+id/Row4" android:layout_marginBottom="2dp" android:layout_height="wrap_content" android:baselineAligned="true" android:layout_width="match_parent" android:layout_weight="1" android:layout_gravity="center">
+		<TableRow android:id="@+id/Row5" android:layout_marginBottom="2dp" android:layout_height="wrap_content" android:baselineAligned="true" android:layout_width="match_parent" android:layout_weight="1" android:layout_gravity="center">
 		<Button android:onClick="ExitGame" android:text="Exit" android:id="@+id/ExitButton" android:layout_width="fill_parent" android:layout_height="match_parent" android:layout_weight="1"></Button>
 		</TableRow>
 	</TableLayout>
