@@ -1,9 +1,11 @@
 package esis.android.sudoku.backend;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import android.content.Context;
 import android.util.Log;
@@ -17,12 +19,12 @@ public class FileSystemTool {
 	try {
 	    MyApp.fos = context.openFileOutput(MyApp.SUDOKU_SAVED_FILE,Context.MODE_PRIVATE);
 	    MyApp.dos = new DataOutputStream(MyApp.fos);
+	    MyApp.dos.writeByte(difficulty);
+	    // set flag to load this saved game the next time a game starts
 	    Log.d(TAG, "saving time: " + (base - System.currentTimeMillis()));// FIXME delete
 	    // Save Chronometer's time
 	    MyApp.dos.writeLong(base - System.currentTimeMillis());
 	    //Save Difficulty
-	    MyApp.dos.writeByte(difficulty);
-	    // set flag to load this saved game the next time a game starts
 	    MyApp.saved_game_exists = true;
 	} catch (FileNotFoundException e) {
 	    MyApp.saved_game_exists = false;
@@ -61,20 +63,21 @@ public class FileSystemTool {
 	}
     }
 
-    public static FileInputStream openFileToLoad(FileInputStream fis, Context context) {
-	try {
-	    fis = context.openFileInput(MyApp.SUDOKU_SAVED_FILE);
+    public static DataInputStream openFileToLoad(Context context) {
+	DataInputStream dis = null;
+	try {		
+		FileInputStream fis = context.openFileInput(MyApp.SUDOKU_SAVED_FILE);
+		dis = new DataInputStream(fis);//
 	} catch (FileNotFoundException e) {
 	    Log.e(TAG, e.getMessage());
 	}
-	return fis;
+	return dis;
     }    
 
-    public static long getsavedTime(FileInputStream fis) {
+    public static long getsavedTime(DataInputStream dis) {
 	long savedTime = 0;
-	for (int i = 0; i < 8; i++)
 	    try {
-		savedTime += fis.read();
+		savedTime += dis.readLong();
 	    } catch (IOException e) {
 		Log.e(TAG, e.getMessage());
 	    }
@@ -82,19 +85,20 @@ public class FileSystemTool {
 	return savedTime + System.currentTimeMillis();
     }
 
-    public static int readBytes(FileInputStream fis) {
+    public static int readBytes(DataInputStream dis) {
 	int aByte = 0;
 	try {
-	    aByte = fis.read();
+	    aByte = dis.read();
 	} catch (IOException e) {
 	    Log.e(TAG, e.getMessage());
 	}
+	//Log.d(TAG, "read: "+ aByte);// FIXME delete
 	return aByte;
     }
 
-    public static void closeFis(FileInputStream fis) {
+    public static void closeFis(DataInputStream dis) {
 	try {
-	    fis.close();
+	    dis.close();
 	} catch (IOException e) {
 	    Log.e(TAG, e.getMessage());
 	}

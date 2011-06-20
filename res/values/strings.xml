@@ -16,10 +16,6 @@
 	<!--    Activity Specific strings    -->
 	<!-- =============================== -->
 
-	<string name="Easy_initial_format">Easy: <xliff:g id="initial-format">%s</xliff:g></string>
-	<string name="Highscore_easy">Easy: %s</string>
-
-
 	<string name="Won_Title">Congrats, You Won!</string>
 
 	<string name="Won_Mesage">Tap OK if you want to play again or Menu to exit
@@ -32,7 +28,11 @@
 	<string name="Feedback_Message">Any comments or ideas are welcome.\nIf you want to
 		share some piece of mind please send an Email
 		to\nsebasguillen@gmail.com.\nWe would really apreciate it.</string>
+	
 	<string name="Reset">Reset</string>
+	
 	<string name="Highscores"><b>Highscores</b></string>
+	
+	<string name="Highscore_format"><b>%1$s:</b> %2$s</string>
 
 </resources>

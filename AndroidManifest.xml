@@ -39,6 +39,7 @@
     		android:name=".frontend.Game"
     		android:theme="@android:style/Theme.NoTitleBar">
         </activity>
+        <activity android:name=".frontend.Highscores"></activity>
         
 
         

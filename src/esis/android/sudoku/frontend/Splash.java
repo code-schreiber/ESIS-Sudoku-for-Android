@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.RelativeLayout;
 import esis.android.sudoku.R;
+import esis.android.sudoku.backend.MyApp;
 
 public class Splash extends Activity{
 
@@ -19,7 +20,8 @@ public class Splash extends Activity{
         
     	final RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
         final boolean _active = true;
-        final int _splashTime = 5*1000; ////TODO Remove wait time and implement a real splash screen. Until now we wait 5 seconds to continue (or continue when tapped)
+        //TODO Remove wait time and implement a real splash screen. Until now we wait 3 seconds to continue (or continue when tapped)
+        final int _splashTime = 3*1000;
         
         
     	splashLayout.setOnClickListener(new View.OnClickListener() {
@@ -27,7 +29,9 @@ public class Splash extends Activity{
             	startNextActivity();
             }
     	});
-
+    	
+    	MyApp myapp = (MyApp) getApplicationContext();
+    	myapp.checkForSavedGame();
     	
         // thread for displaying the SplashScreen
         Thread splashTread = new Thread() {

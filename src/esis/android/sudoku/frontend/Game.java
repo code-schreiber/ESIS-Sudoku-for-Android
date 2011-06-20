@@ -1,6 +1,7 @@
 package esis.android.sudoku.frontend;
 
 
+import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.util.Random;
 
@@ -142,15 +143,15 @@ public class Game extends Activity {
 	}
 
 	private void loadGame() {
-		FileInputStream fis = null;
 		int[][] user_entered_numbers = new int[SIZE][SIZE];
-		
-		fis = FileSystemTool.openFileToLoad(fis, getApplicationContext());
-		int loadedDifficulty = FileSystemTool.readBytes(fis);
+
+		DataInputStream dis = null;
+		dis = FileSystemTool.openFileToLoad(getApplicationContext());
+		int loadedDifficulty = FileSystemTool.readBytes(dis);
 		loadDifficulty(loadedDifficulty);
-		long savedTime = FileSystemTool.getsavedTime(fis);
-		loadData(fis, user_entered_numbers);
-		FileSystemTool.closeFis(fis);
+		long savedTime = FileSystemTool.getsavedTime(dis);
+		loadData(dis, user_entered_numbers);
+		FileSystemTool.closeFis(dis);
 		
 		// write the unsolved grid in the GUI
 		copyGrid();		
@@ -171,9 +172,12 @@ public class Game extends Activity {
 	    	loadedDifficulty = R.id.radio_hard;
 	    else
 		return;
-	       
-	    ((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).check(loadedDifficulty);
+	       //FIXME google accesing a view from other activity ..or think of someway better
+/*	    ((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).check(loadedDifficulty);
 	    MyApp.setDifficulty(((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).getCheckedRadioButtonId());
+	    Toast.makeText(this, "Loaded game's difficulty: " + 
+	    		((RadioButton)findViewById(loadedDifficulty)).getText(), 
+	    		Toast.LENGTH_SHORT).show();*/
 	}
 
 	private void copyUserNumbersToGui(int[][] user_entered_numbers) {
@@ -185,15 +189,15 @@ public class Game extends Activity {
 	    	}
 	}
 
-	private void loadData(FileInputStream fis, int[][] user_entered_numbers) {
+	private void loadData(DataInputStream dis, int[][] user_entered_numbers) {
 	    for (int row = 0; row < SIZE; ++row)
 	    	for (int column = 0; column < SIZE; ++column) {
 	    		// Read cell from solved
-	    		backendsudoku.solved_grid[row][column] = FileSystemTool.readBytes(fis);
+	    		backendsudoku.solved_grid[row][column] = FileSystemTool.readBytes(dis);
 	    		// Read cell from unsolved
-	    		backendsudoku.unsolved_grid[row][column] = FileSystemTool.readBytes(fis);
+	    		backendsudoku.unsolved_grid[row][column] = FileSystemTool.readBytes(dis);
 	    		// Read cells entered from user
-	    		user_entered_numbers[row][column] = FileSystemTool.readBytes(fis);
+	    		user_entered_numbers[row][column] = FileSystemTool.readBytes(dis);
 	    	}
 	}
 
@@ -347,8 +351,7 @@ public class Game extends Activity {
 
 	private void keepPlaying(boolean action) {
 		if (action)
-			Toast.makeText(this, R.string.keepPlayingText, Toast.LENGTH_LONG)
-					.show();
+			Toast.makeText(this, R.string.keepPlayingText, Toast.LENGTH_LONG).show();
 	}
 
 	private void gameWon() {

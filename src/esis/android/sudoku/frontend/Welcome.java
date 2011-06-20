@@ -22,9 +22,8 @@ import esis.android.sudoku.backend.MyApp;
 public class Welcome extends Activity{
 	
 	private static final String TAG = Welcome.class.getSimpleName();
-	private MyApp myapp;
 	private RadioGroup difficultyRadioGroup;
-	private Button NewGameButton;//FIXME make the cast like in Game if it worked
+	private Button NewGameButton;//FIXME make the cast like in Game if it worked (it did)
 	private Button LoadGameButton;
 	private Button FeedbackButton;
 	private Button ExitButton;
@@ -36,9 +35,8 @@ public class Welcome extends Activity{
        	setContentView(R.layout.welcome);
         InitRadioGroup();
         InitButtons();
-    	myapp = (MyApp) getApplicationContext();
-    	MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());//Set the difficulty
-    	myapp.checkForSavedGame();
+    	//TODO here: get the saved difficulty getPreferences(mode) and check the radiobutton difficultyRadioGroup.check(id)
+    	MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());
     }
     
 	private void InitRadioGroup() {
@@ -90,7 +88,16 @@ public class Welcome extends Activity{
 		    	    Toast.makeText(v.getContext(), R.string.no_game_to_load, Toast.LENGTH_SHORT).show();
 		    }
 		});
-		FeedbackButton.setOnClickListener(new View.OnClickListener() {
+		Button b = (Button) findViewById(R.id.HighscoresButton);
+		b.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {            	
+		    	Intent intent = new Intent();
+		    	intent.setClass(Welcome.this, Highscores.class);		    	
+		    	Welcome.this.startActivity(intent);
+            }
+		});
+		b = (Button) findViewById(R.id.FeedbackButton);
+		b.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {            	
                 launchFeedbackDialog(v);
             }

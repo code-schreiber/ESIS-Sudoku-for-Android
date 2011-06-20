@@ -20,7 +20,6 @@ public class MyApp extends Application {
 
 	public static boolean saved_game_exists;
 	public static String SUDOKU_SAVED_FILE = "saved_sudoku_game";
-	public static String SUDOKU_HIGHSCORED_FILE = "sudoku_highscores";
 	public static DataOutputStream dos;
 	public static FileOutputStream fos;
 
