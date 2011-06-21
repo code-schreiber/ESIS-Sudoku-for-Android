@@ -11,7 +11,8 @@
       android:layout_height="wrap_content">
 
       <TextView android:id="@+id/HighscoresTilte"
-          android:background="@drawable/green"
+          android:background="@drawable/screen_background_black"
+          android:textColor="@color/solid_yellow"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/Highscores"

@@ -6,22 +6,25 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import android.app.Application;
+import android.util.Log;
 import esis.android.sudoku.R;
 
-import android.app.Application;
-import android.os.SystemClock;
-import android.util.Log;
-
 public class MyApp extends Application {
-	//FIXME BUG: when restarting device, time is reseted when loading.
+
 	private static final String TAG = MyApp.class.getSimpleName();
 	
 	private static int difficulty;
-
 	public static boolean saved_game_exists;
-	public static String SUDOKU_SAVED_FILE = "saved_sudoku_game";
 	public static DataOutputStream dos;
 	public static FileOutputStream fos;
+	
+	/* Constants */
+	public static final int EASY = 1;
+	public static final int MEDIUM = 2;
+	public static final int HARD = 3;
+	public static final String SUDOKU_SAVED_FILE = "saved_sudoku_game";
+	public static final String HIGHSCORES_FILE = "sudoku_highscores";
 
 	public static int getdifficulty() {
 		return MyApp.difficulty;
@@ -30,13 +33,13 @@ public class MyApp extends Application {
 	public static void setDifficulty(int id){
 	    switch (id) {
 	        case R.id.radio_easy:
-	            MyApp.difficulty = 1;//Easy
+	            MyApp.difficulty = EASY;
 	            break;
 	        case R.id.radio_medium:
-	            MyApp.difficulty = 2;//Medium
+	            MyApp.difficulty = MEDIUM;
 	            break;
 	        case R.id.radio_hard:
-	            MyApp.difficulty = 3;//Hard
+	            MyApp.difficulty = HARD;
 	            break;
 	        default:
 	            break;
@@ -58,6 +61,23 @@ public class MyApp extends Application {
 			MyApp.saved_game_exists = false;
 			Log.e(TAG, e.getMessage());
 		}
+	}
+
+	public static int getDifficultyID() {
+	    switch (MyApp.difficulty) {
+	        case MyApp.EASY:
+	            return R.id.radio_easy;
+	        case MyApp.MEDIUM:
+	            return R.id.radio_medium;
+	        case MyApp.HARD:
+	            return R.id.radio_hard;
+	        default:
+	            return 0;//Should not happen
+	    }
+	}
+
+	public static boolean difficultyIsValid() {
+	    return !(MyApp.difficulty < MyApp.EASY || MyApp.difficulty > MyApp.HARD);
 	}
 
 }

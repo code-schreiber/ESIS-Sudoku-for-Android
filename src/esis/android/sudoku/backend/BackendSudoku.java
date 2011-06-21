@@ -10,9 +10,14 @@ import java.util.Random;
 public class BackendSudoku {
 
 	public static final int SIZE = 9;
+	private static final String TAG = BackendSudoku.class.getSimpleName();
+	private static final int REMOVE_LOTS = 63;//TODO idea! choosing dificulty in MYApp and change them from settings?
+	private static final int REMOVE_SOME = 45;
+	private static final int REMOVE_FEW = 35;
+	
 	public int unsolved_grid[][];/** < Raetselfeld */
 	public int solved_grid[][];/** < Loesungsfeld */
-	private static final String TAG = BackendSudoku.class.getSimpleName();
+	
 	private int numberOfSolutions;	/** < Anzahl der moeglichen Loesungen */
 	private int random;		/** < Zufallszahlen zum erzeugen vom Sudoku */
 	private int random_coordinate;	/** < Erste zufaellige Koordinate zum Zahlen entfernen */
@@ -21,11 +26,9 @@ public class BackendSudoku {
 	private int elem;		/** < Anzahl zu pruefender Zellen im Feld */
 	private Random rand;
 	
-	public class Zellen{
-		
+	public class Zellen{		
 		private int zeile;
-		private int spalte;
-		
+		private int spalte;		
 		public int getZeile(){return zeile;}
 		public void setZeile(int x){zeile = x;}
 		public int getSpalte(){return spalte;}
@@ -33,7 +36,6 @@ public class BackendSudoku {
 	}
 	
 	Zellen[] pZellen;
-
 
 	public BackendSudoku() {
 
@@ -108,16 +110,16 @@ public class BackendSudoku {
 		return false; // Misserfolg
 	}
 
-	public void removeRndCells(int difficulty) {
+	public void removeRndCells(int difficulty) {//FIXME this is way to slow for REMOVE_LOTS
 
-		int anzZahlen = 0; // zu entfernende Zahlen
+		int quantityToRemove = 0; // zu entfernende Zahlen
 
-		if (difficulty == 1)
-			anzZahlen = 35;//TODO make ints for choosing dificulty.. idea! in MYApp and change them from settings?
-		else if (difficulty == 2)
-			anzZahlen = 45;
-		else if (difficulty == 3)
-			anzZahlen = 63; // Maximale Anzahl Zahlen, die theoretisch entfernt werden koennten
+		if (difficulty == MyApp.EASY)
+		    quantityToRemove = REMOVE_FEW;
+		else if (difficulty == MyApp.MEDIUM)
+		    quantityToRemove = REMOVE_SOME;
+		else if (difficulty == MyApp.HARD)
+		    quantityToRemove = REMOVE_LOTS; // Maximale Anzahl Zahlen, die theoretisch entfernt werden koennten
 
 		for (int i = 0; i < SIZE; ++i)// belegte Zellen in feld speichern
 			for (int j = 0; j < SIZE; ++j) {
@@ -126,7 +128,7 @@ public class BackendSudoku {
 				++elem;
 			}
 
-		while (countEmptyCells() < anzZahlen) {
+		while (countEmptyCells() < quantityToRemove) {
 			if (elem <= 0)// abbrechen wenn keine moeglichkeiten mehr zur verfuegung stehen
 			    break;
 			random_coordinate = (rand.nextInt(elem));

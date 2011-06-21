@@ -5,7 +5,6 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
 import android.content.Context;
 import android.util.Log;
@@ -92,7 +91,6 @@ public class FileSystemTool {
 	} catch (IOException e) {
 	    Log.e(TAG, e.getMessage());
 	}
-	//Log.d(TAG, "read: "+ aByte);// FIXME delete
 	return aByte;
     }
 

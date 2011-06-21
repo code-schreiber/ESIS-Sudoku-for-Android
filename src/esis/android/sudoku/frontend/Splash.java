@@ -32,7 +32,7 @@ public class Splash extends Activity{
     	
     	MyApp myapp = (MyApp) getApplicationContext();
     	myapp.checkForSavedGame();
-    	
+   	
         // thread for displaying the SplashScreen
         Thread splashTread = new Thread() {
             @Override
@@ -66,5 +66,5 @@ public class Splash extends Activity{
 		}
 	}
 
-    
+
 }

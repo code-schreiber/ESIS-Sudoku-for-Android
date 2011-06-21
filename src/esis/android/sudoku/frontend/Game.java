@@ -2,16 +2,20 @@ package esis.android.sudoku.frontend;
 
 
 import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.util.Random;
 
 import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -27,14 +31,11 @@ import esis.android.sudoku.backend.MyApp;
 import esis.android.sudoku.backend.MyChronometer;
 
 //Sign for 12 years (2033)
-//TODO release focus when number is typed in (listener to all cells)
-//TODO make highscores with view
 //TODO make settings with view
 public class Game extends Activity {
 
 	private static final String TAG = Game.class.getSimpleName();
 	private final int SIZE = BackendSudoku.SIZE;
-	private EditText guiText;
 	private BackendSudoku backendsudoku;
 
 	/** Called when the activity is first created. */
@@ -43,26 +44,37 @@ public class Game extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		InitButtons();
+		InitCellListeners();
 		NewGame();
 	}
 
+	private void InitCellListeners() {
+	  //TODO release focus when number is typed in (listener to all cells)
+	    for (int row = 0; row < SIZE; ++row)
+	    	for (int column = 0; column < SIZE; ++column){
+	    	    final EditText guiText = (EditText) findViewById(getEditTextId(row, column));		
+		    guiText.addTextChangedListener(new TextWatcher() {
+		        public void afterTextChanged(Editable s) {
+		            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		            imm.hideSoftInputFromInputMethod(guiText.getWindowToken(), 0);
+		        }
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+		    });
+	    	}
+	    
+	}
+
 	private void NewGame() {
-		MyApp myapp = (MyApp) getApplicationContext();
 		backendsudoku = new BackendSudoku();
 		if (MyApp.saved_game_exists) {// Load previously saved game
 			loadGame();// copy user grid to GUI
 		} else {
-			Log.d(TAG, "Creating grid..............");
-			backendsudoku.create_game(myapp.getdifficulty());
-			Log.d(TAG, "Grid Created...............");
-
-			if (myapp.getdifficulty() != 1 && myapp.getdifficulty() != 2 && myapp.getdifficulty() != 3)
-				Log.e(TAG, "Difficulty not set.");
-			
-			Log.d(TAG, "New Game Called with difficulty " + myapp.getdifficulty());
-
-			ResetGame();
-			
+			backendsudoku.create_game(MyApp.getdifficulty());
+			if (!MyApp.difficultyIsValid())
+				Log.e(TAG, "Difficulty not set.");			
+			Log.d(TAG, "New Game Called with difficulty " + MyApp.getdifficulty());
+			ResetGame();			
 		}
 		((Button) findViewById(R.id.CheckButton)).setEnabled(true);
 		enableOrDisableHelpResetPause(true);
@@ -112,7 +124,7 @@ public class Game extends Activity {
 		while (true) {
 			row = rand.nextInt(SIZE);
 			column = rand.nextInt(SIZE);
-			guiText = (EditText) findViewById(getEditTextId(row, column));
+			EditText guiText = (EditText) findViewById(getEditTextId(row, column));
 			if (guiText.getText().toString().equals("")) {
 				guiText.requestFocus();
 				guiText.setText(Integer.toString(backendsudoku.solved_grid[row][column]));
@@ -134,11 +146,11 @@ public class Game extends Activity {
 	private void copyGuiCellsToArray(int[][] guiCells) {
 	    for (int row = 0; row < SIZE; ++row)
 	    	for (int column = 0; column < SIZE; ++column){
-	    		guiText = (EditText) findViewById(getEditTextId(row, column));				
-	    		if (guiText.isFocusable() && guiText.isEnabled() && !guiText.getText().toString().equals(""))
-	    		    guiCells[row][column] = Integer.parseInt(guiText.getText().toString());
-	    		else
-	    		    guiCells[row][column] = 0;
+	    	    EditText guiText = (EditText) findViewById(getEditTextId(row, column));				
+	    	    if (guiText.isFocusable() && guiText.isEnabled() && !guiText.getText().toString().equals(""))
+	    		guiCells[row][column] = Integer.parseInt(guiText.getText().toString());
+	    	    else
+	    		guiCells[row][column] = 0;
 	    	}
 	}
 
@@ -152,7 +164,7 @@ public class Game extends Activity {
 		long savedTime = FileSystemTool.getsavedTime(dis);
 		loadData(dis, user_entered_numbers);
 		FileSystemTool.closeFis(dis);
-		
+
 		// write the unsolved grid in the GUI
 		copyGrid();		
 		// write user entered numbers in the GUI
@@ -162,30 +174,24 @@ public class Game extends Activity {
 		((MyChronometer) findViewById(R.id.chronometer)).start();
 	}
 
-	private void loadDifficulty(int loadedDifficulty) {
-	    Log.d(TAG, "Loading difficulty: " + loadedDifficulty);
-	    if (loadedDifficulty == 1)
+	private void loadDifficulty(int loadedDifficulty) {	    
+	    if (loadedDifficulty == MyApp.EASY)
 	        loadedDifficulty = R.id.radio_easy;
-	    else if (loadedDifficulty == 2)
+	    else if (loadedDifficulty == MyApp.MEDIUM)
 	        loadedDifficulty = R.id.radio_medium;
-	    else if (loadedDifficulty == 3)
+	    else if (loadedDifficulty == MyApp.HARD)
 	    	loadedDifficulty = R.id.radio_hard;
 	    else
 		return;
-	       //FIXME google accesing a view from other activity ..or think of someway better
-/*	    ((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).check(loadedDifficulty);
-	    MyApp.setDifficulty(((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).getCheckedRadioButtonId());
-	    Toast.makeText(this, "Loaded game's difficulty: " + 
-	    		((RadioButton)findViewById(loadedDifficulty)).getText(), 
-	    		Toast.LENGTH_SHORT).show();*/
+	    MyApp.setDifficulty(loadedDifficulty);
 	}
 
 	private void copyUserNumbersToGui(int[][] user_entered_numbers) {
 	    for (int row = 0; row < SIZE; ++row)
 	        for (int column = 0; column < SIZE; ++column)
 	    	if (user_entered_numbers[row][column] != 0) {
-	    	    guiText = (EditText) findViewById(getEditTextId(row, column));
-	    	    guiText.setText(Integer.toString(user_entered_numbers[row][column]));
+	    	    EditText guiText = (EditText) findViewById(getEditTextId(row, column));
+	    	    setUserCell(guiText, Integer.toString(user_entered_numbers[row][column]));
 	    	}
 	}
 
@@ -243,27 +249,28 @@ public class Game extends Activity {
 	private void copyGrid() {
 		for (int row = 0; row < SIZE; ++row) {
 			for (int column = 0; column < SIZE; ++column) {
-				guiText = (EditText) findViewById(getEditTextId(row, column));
+			    	EditText guiText = (EditText) findViewById(getEditTextId(row, column));
 				int backendCellNumber = backendsudoku.unsolved_grid[row][column];
 				if (backendCellNumber != 0)
 					setGivenCell(guiText, backendCellNumber);
 				else
-					setUserCell(guiText);
+					setUserCell(guiText, "");
 			}
 		}
 	}
 
-	private void setUserCell(EditText gT) {
-		gT.setText("");
+	private void setUserCell(EditText gT, String text) {
+		gT.setText(text);
 		gT.setEnabled(true);
 		gT.setFocusable(true);
 		gT.setTextColor(getResources().getColor(R.color.solid_black));
 	}
+	
 
 	private void setGivenCell(EditText gT, int backendCellNumber) {
+		gT.setText(Integer.toString(backendCellNumber));
 		gT.setEnabled(false);
 		gT.setFocusable(false);
-		gT.setText(Integer.toString(backendCellNumber));
 		gT.setTextColor(getResources().getColor(color.primary_text_dark));
 	}
 
@@ -303,14 +310,14 @@ public class Game extends Activity {
 
         	for (int row = 0; row < SIZE; ++row)
         	    for (int column = 0; column < SIZE; ++column) {
-        		guiText = (EditText) findViewById(getEditTextId(row, column));
+        		EditText guiText = (EditText) findViewById(getEditTextId(row, column));
         		if (guiText.isFocusable()) {// if it is a user cell
         		    guiText.setEnabled(!action);
         		    if (!guiText.getText().toString().equals("")) {
         			if (!action)
         			    guiText.setTextColor(getResources().getColor(R.color.solid_black));
         			else
-        			    markMistakes(row, column);
+        			    markMistakes(guiText, row, column);
         		    }
         		}
         	    }
@@ -322,7 +329,7 @@ public class Game extends Activity {
 		((Button) findViewById(R.id.PauseButton)).setEnabled(b);	    
 	}
 
-	private void markMistakes(int row, int column) {
+	private void markMistakes(TextView guiText, int row, int column) {
 		if (guiText.getText().toString().equals(Integer.toString(backendsudoku.solved_grid[row][column])))
 			guiText.setTextColor(getResources().getColor(R.color.solid_blue));// good TODO IDEA: only mark errors.
 		else
@@ -332,7 +339,7 @@ public class Game extends Activity {
 	private boolean sudokuIsComplete() {
 		for (int row = 0; row < SIZE; ++row)
 			for (int column = 0; column < SIZE; ++column) {
-				guiText = (EditText) findViewById(getEditTextId(row, column));
+			    EditText guiText = (EditText) findViewById(getEditTextId(row, column));
 				if (guiText.getText().toString().equals(""))
 					return false;
 			}
@@ -342,7 +349,7 @@ public class Game extends Activity {
 	private boolean sudokuIsCorrect() {
 		for (int row = 0; row < SIZE; ++row)
 			for (int column = 0; column < SIZE; ++column) {
-				guiText = (EditText) findViewById(getEditTextId(row, column));
+			    EditText guiText = (EditText) findViewById(getEditTextId(row, column));
 				if (!guiText.getText().toString().equals(Integer.toString(backendsudoku.solved_grid[row][column])))
 					return false;
 			}
@@ -355,8 +362,8 @@ public class Game extends Activity {
 	}
 
 	private void gameWon() {
-
-		((MyChronometer) findViewById(R.id.chronometer)).stop();
+		MyChronometer c = ((MyChronometer) findViewById(R.id.chronometer));
+		c.stop();
 		MyApp.saved_game_exists = false;// no chance to load an already won game
 		check(true);// uncheck the game in background
 
@@ -365,20 +372,32 @@ public class Game extends Activity {
 			.setTitle(R.string.Won_Title)
 			.setMessage(R.string.Won_Mesage)
 			.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						/* User clicked OK so do some stuff */
-						NewGame();
-					}
-				}).setNegativeButton("Menu",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-									int whichButton) {
-								/* User clicked Cancel so do some stuff */
-								Game.this.finish();
-							}
-						}).create().show();
-		//TODO here: save the time if its faster than THE HIGSCORE.
-		((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).getCheckedRadioButtonId();//TODO save checked radio button also when saving
+        		    public void onClick(DialogInterface dialog, int whichButton) {
+        			/* User clicked OK so do some stuff */
+        			NewGame();
+        		    }
+        		}).setNegativeButton("Menu", new DialogInterface.OnClickListener() {
+        			    public void onClick(DialogInterface dialog,
+        				    int whichButton) {
+        				/* User clicked Cancel so do some stuff */
+        				Game.this.finish();
+        			    }
+        		}).create().show();
+		saveHighscore(c.getText().toString());
 	}
+
+	private void saveHighscore(String time) {
+	    int id = ((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).getCheckedRadioButtonId();
+	    String diff = ((RadioButton)findViewById(id)).getText().toString();
+	    SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES_FILE, MODE_WORLD_WRITEABLE);//TODO maybe read&wirte if it doesnt work
+	    String oldHighscore = settings.getString(diff, Highscores.defValue);
+	    Log.d(TAG, "saving highscore with diff "+diff+" and time "+time+" and old hs "+oldHighscore);
+/*	    if (oldHighscore < time){	    //TODO here: save the time if its faster than THE HIGSCORE.
+		    SharedPreferences.Editor editor = settings.edit();
+		    editor.putString(diff, time);
+		    editor.commit();
+	    }*/
+	}
+
 
 }

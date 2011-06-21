@@ -20,15 +20,10 @@ import esis.android.sudoku.backend.MyApp;
 
 
 public class Welcome extends Activity{
-	
-	private static final String TAG = Welcome.class.getSimpleName();
-	private RadioGroup difficultyRadioGroup;
-	private Button NewGameButton;//FIXME make the cast like in Game if it worked (it did)
-	private Button LoadGameButton;
-	private Button FeedbackButton;
-	private Button ExitButton;
-	
-	/** Called when the activity is first created. */
+
+    private static final String TAG = Welcome.class.getSimpleName();
+
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,13 +31,14 @@ public class Welcome extends Activity{
         InitRadioGroup();
         InitButtons();
     	//TODO here: get the saved difficulty getPreferences(mode) and check the radiobutton difficultyRadioGroup.check(id)
-    	MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());
+        RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
+        MyApp.setDifficulty(rg.getCheckedRadioButtonId());
+        if (MyApp.difficultyIsValid())
+            rg.check(MyApp.getDifficultyID());
     }
     
-	private void InitRadioGroup() {
-		
-	    difficultyRadioGroup = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
-
+	private void InitRadioGroup() {		
+	    final RadioGroup difficultyRadioGroup = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
 	    for(int i = 0; i < difficultyRadioGroup.getChildCount(); i++){
 	    	RadioButton radioButton = (RadioButton)difficultyRadioGroup.getChildAt(i);
 		    radioButton.setOnClickListener(new View.OnClickListener() {
@@ -53,104 +49,111 @@ public class Welcome extends Activity{
 	    }
 	}
 
-	private void InitButtons(){
-	    NewGameButton = (Button) findViewById(R.id.NewGameButton);
-		LoadGameButton = (Button) findViewById(R.id.LoadGameButton);
-		FeedbackButton = (Button) findViewById(R.id.FeedbackButton);
-		ExitButton = (Button) findViewById(R.id.ExitButton);
-		
-		NewGameButton.setOnClickListener(new View.OnClickListener() {
-		    public void onClick(View v) {
-				if(MyApp.saved_game_exists){
-				    deleteSavedGameWarning(v);
-				}
-				else{	
-					CharSequence difficulty = ((RadioButton) findViewById(difficultyRadioGroup.getCheckedRadioButtonId())).getText();
-				 	Toast.makeText(v.getContext(), "Creating "+difficulty+" Sudoku", Toast.LENGTH_LONG).show();
-					Intent intent = new Intent();
-        		    intent.setClass(Welcome.this, Game.class);		    	
-        		    Welcome.this.startActivity(intent);
-				}
+    private void InitButtons() {
+	Button b = (Button) findViewById(R.id.NewGameButton);
+	b.setOnClickListener(new View.OnClickListener() {
+	    public void onClick(View v) {
+		newGameButtonAction(v);
+	    }
+	});
+	b = (Button) findViewById(R.id.LoadGameButton);
+	b.setOnClickListener(new View.OnClickListener() {
+	    public void onClick(View v) {
+		loadgameButtonAction(v);
+	    }
+	});
+	b = (Button) findViewById(R.id.HighscoresButton);
+	b.setOnClickListener(new View.OnClickListener() {
+	    public void onClick(View v) {
+		Intent intent = new Intent();
+		intent.setClass(Welcome.this, Highscores.class);
+		Welcome.this.startActivity(intent);
+	    }
+	});
+	b = (Button) findViewById(R.id.FeedbackButton);
+	b.setOnClickListener(new View.OnClickListener() {
+	    public void onClick(View v) {
+		launchFeedbackDialog(v);
+	    }
+	});
+	b = (Button) findViewById(R.id.ExitButton);
+	b.setOnClickListener(new View.OnClickListener() {
+	    public void onClick(View v) {
+		ExitGame();
+	    }
+	});
+    }
 
-		    }
-	    });
-		
-		LoadGameButton.setOnClickListener(new View.OnClickListener() {
-		    public void onClick(View v) {
-		    	Log.d(TAG, "Loading Game");
-		    	if(MyApp.saved_game_exists){
-		    	    Toast.makeText(v.getContext(), "Loading Game", Toast.LENGTH_LONG).show();
-			    	Intent intent = new Intent();
-			    	intent.setClass(Welcome.this, Game.class);		    	
-			    	Welcome.this.startActivity(intent);
-		    	}
-		    	else
-		    	    Toast.makeText(v.getContext(), R.string.no_game_to_load, Toast.LENGTH_SHORT).show();
-		    }
-		});
-		Button b = (Button) findViewById(R.id.HighscoresButton);
-		b.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {            	
-		    	Intent intent = new Intent();
-		    	intent.setClass(Welcome.this, Highscores.class);		    	
-		    	Welcome.this.startActivity(intent);
-            }
-		});
-		b = (Button) findViewById(R.id.FeedbackButton);
-		b.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {            	
-                launchFeedbackDialog(v);
-            }
-		});	
-		ExitButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	ExitGame();
-            }
-		});	    
+    private void newGameButtonAction(View v) {
+	if (MyApp.saved_game_exists) {
+	    deleteSavedGameWarning(v);
+	} else {
+	    RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
+	    CharSequence difficulty = ((RadioButton) findViewById(rg
+		    .getCheckedRadioButtonId())).getText();
+	    Toast.makeText(v.getContext(),
+		    "Creating " + difficulty + " Sudoku",
+		    Toast.LENGTH_LONG).show();
+	    Intent intent = new Intent();
+	    intent.setClass(Welcome.this, Game.class);
+	    Welcome.this.startActivity(intent);
 	}
+    }
 
+    private void loadgameButtonAction(View v) {
+	Log.d(TAG, "Loading Game");
+	if (MyApp.saved_game_exists) {
+	    Toast.makeText(v.getContext(), "Loading Game",
+		    Toast.LENGTH_LONG).show();
+	    Intent intent = new Intent();
+	    intent.setClass(Welcome.this, Game.class);
+	    Welcome.this.startActivity(intent);
+	} else
+	    Toast.makeText(v.getContext(), R.string.no_game_to_load,
+		    Toast.LENGTH_SHORT).show();
+    }
 	private void ExitGame(){
 	    Log.d(TAG, "Exiting App");
 	    this.finish();
-	}
-	
+	}	
 
 	private void launchFeedbackDialog(View v) {
-		final SpannableString s = new SpannableString(getString(R.string.Feedback_Message));
-        Linkify.addLinks(s, Linkify.EMAIL_ADDRESSES);
-        
-        final AlertDialog d = new AlertDialog.Builder(v.getContext())
-    	.setIcon(R.drawable.icon)
-        .setTitle(FeedbackButton.getText())
-        .setMessage(s)
-        .setPositiveButton("Good to know", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-            	//Just go away.
-            }
-        }).create();
-        
-        d.show();
-        
-    	// Make the textview clickable. Must be called after show()
-        ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+        	final SpannableString s = new SpannableString(getString(R.string.Feedback_Message));
+        	Linkify.addLinks(s, Linkify.EMAIL_ADDRESSES);
+        	final Button b = (Button) findViewById(R.id.FeedbackButton);
+        	final AlertDialog d = new AlertDialog.Builder(v.getContext())
+                    .setIcon(R.drawable.icon)
+                    .setTitle(b.getText())
+                    .setMessage(s)
+                    .setPositiveButton("Good to know", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        	//Just go away.
+                        }
+                    }).create();
+        	d.show();
+        	// Make the textview clickable. Must be called after show()
+        	((TextView)d.findViewById(android.R.id.message))
+        	.setMovementMethod(LinkMovementMethod.getInstance());
 	}
-	
+
 	private void deleteSavedGameWarning(View v) {
+		final Button b = (Button) findViewById(R.id.NewGameButton);
+		final Button lb = (Button) findViewById(R.id.LoadGameButton);
 		new AlertDialog.Builder(v.getContext())
 		    .setMessage("This will delete a previously saved game")
 		    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		            /* User clicked OK so start new game */  
 		            MyApp.saved_game_exists = false;
-		            NewGameButton.performClick();
+		            b.performClick();
 		        }
 		    })
 		    .setNegativeButton("Load Instead", new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		            /* load the game*/
-		            LoadGameButton.performClick();
+		            lb.performClick();
 		        }
-		    })
-		    .create().show();
+		    }).create().show();
 	}
+	
 }
