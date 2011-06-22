@@ -18,8 +18,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -30,13 +28,20 @@ import esis.android.sudoku.backend.FileSystemTool;
 import esis.android.sudoku.backend.MyApp;
 import esis.android.sudoku.backend.MyChronometer;
 
-//Sign for 12 years (2033)
-//TODO make settings with view
+/**
+ * @author Sebastian Guillen
+ * TODO 's: 
+ * Sign for 12 years (2033)
+ * make settings with view
+ */
+
 public class Game extends Activity {
 
 	private static final String TAG = Game.class.getSimpleName();
 	private final int SIZE = BackendSudoku.SIZE;
+	private int triesCounter = 0;
 	private BackendSudoku backendsudoku;
+	private int removedNrs = 0;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -44,25 +49,36 @@ public class Game extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		InitButtons();
+		removedNrs = backendsudoku.getHowManyNumbersToRemove(MyApp.getdifficulty());
 		InitCellListeners();
 		NewGame();
 	}
 
+	/**	Release focus when number is typed in (listener to all cells) */
 	private void InitCellListeners() {
-	  //TODO release focus when number is typed in (listener to all cells)
 	    for (int row = 0; row < SIZE; ++row)
 	    	for (int column = 0; column < SIZE; ++column){
 	    	    final EditText guiText = (EditText) findViewById(getEditTextId(row, column));		
-		    guiText.addTextChangedListener(new TextWatcher() {
-		        public void afterTextChanged(Editable s) {
-		            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-		            imm.hideSoftInputFromInputMethod(guiText.getWindowToken(), 0);
-		        }
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-			public void onTextChanged(CharSequence s, int start, int before, int count) {}
-		    });
+	    	    guiText.addTextChangedListener(new TextWatcher() {
+			        public void afterTextChanged(Editable s) {
+			        	if(guiText.length() != 0){
+			        		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+			        		imm.hideSoftInputFromWindow(guiText.getWindowToken(), 0);
+			        		triesCounter++;
+			        		if (triesCounter >= removedNrs)
+			        			checkIfWon(true);	
+			        	}
+			        	else
+			        		triesCounter--;
+			        }
+					public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+						if(guiText.length() > 0)
+							guiText.setSelection(1);
+					}
+					public void onTextChanged(CharSequence s, int start, int before, int count) {
+						/* Nothing */}
+	    	    });
 	    	}
-	    
 	}
 
 	private void NewGame() {
@@ -207,7 +223,7 @@ public class Game extends Activity {
 	    	}
 	}
 
-	private void InitButtons() {	    	
+	private void InitButtons() {//TODO make buttons same size    	
 		Button button;
 
 		button = (Button) findViewById(R.id.CheckButton);
@@ -280,13 +296,14 @@ public class Game extends Activity {
 	}
 
 	private void CheckGrid() {
-
 		boolean checking = false;// Unchecking
-		if (((Button) findViewById(R.id.CheckButton)).getText().equals(" Check "))
+		if (((Button) findViewById(R.id.CheckButton)).getText().equals("Check"))
 			checking = true;// Checking
-
 		check(checking);
+		checkIfWon(checking);
+	}
 
+	private void checkIfWon(boolean checking) {
 		if (sudokuIsComplete())
 			if (sudokuIsCorrect())
 				gameWon();
@@ -301,16 +318,15 @@ public class Game extends Activity {
 		if (action)
 			text = "Uncheck";
 		else
-			text = " Check ";
+			text = "Check";
 
 		((Button) findViewById(R.id.CheckButton)).setText(text);
 		enableOrDisableHelpResetPause(!action);
 		((Button) findViewById(R.id.SaveButton)).setEnabled(!action);
 
-
-        	for (int row = 0; row < SIZE; ++row)
-        	    for (int column = 0; column < SIZE; ++column) {
-        		EditText guiText = (EditText) findViewById(getEditTextId(row, column));
+    	for (int row = 0; row < SIZE; ++row)
+    	    for (int column = 0; column < SIZE; ++column) {
+    		EditText guiText = (EditText) findViewById(getEditTextId(row, column));
         		if (guiText.isFocusable()) {// if it is a user cell
         		    guiText.setEnabled(!action);
         		    if (!guiText.getText().toString().equals("")) {
@@ -320,7 +336,7 @@ public class Game extends Activity {
         			    markMistakes(guiText, row, column);
         		    }
         		}
-        	    }
+    	    }
 	}
 
 	private void enableOrDisableHelpResetPause(boolean b) {
@@ -365,7 +381,7 @@ public class Game extends Activity {
 		MyChronometer c = ((MyChronometer) findViewById(R.id.chronometer));
 		c.stop();
 		MyApp.saved_game_exists = false;// no chance to load an already won game
-		check(true);// uncheck the game in background
+		check(false);// uncheck the game in background
 
 		new AlertDialog.Builder(this)
 			.setIcon(R.drawable.icon)
@@ -375,6 +391,7 @@ public class Game extends Activity {
         		    public void onClick(DialogInterface dialog, int whichButton) {
         			/* User clicked OK so do some stuff */
         			NewGame();
+        			//TODO delete saved file
         		    }
         		}).setNegativeButton("Menu", new DialogInterface.OnClickListener() {
         			    public void onClick(DialogInterface dialog,
@@ -386,17 +403,34 @@ public class Game extends Activity {
 		saveHighscore(c.getText().toString());
 	}
 
-	private void saveHighscore(String time) {
-	    int id = ((RadioGroup) findViewById(R.id.DifficultyRadioGroup)).getCheckedRadioButtonId();
-	    String diff = ((RadioButton)findViewById(id)).getText().toString();
-	    SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES_FILE, MODE_WORLD_WRITEABLE);//TODO maybe read&wirte if it doesnt work
-	    String oldHighscore = settings.getString(diff, Highscores.defValue);
-	    Log.d(TAG, "saving highscore with diff "+diff+" and time "+time+" and old hs "+oldHighscore);
-/*	    if (oldHighscore < time){	    //TODO here: save the time if its faster than THE HIGSCORE.
-		    SharedPreferences.Editor editor = settings.edit();
-		    editor.putString(diff, time);
-		    editor.commit();
-	    }*/
+	private void saveHighscore(String newTime) {
+		MyApp ma = (MyApp) getApplication();
+		String difficulty = ma.getDifficultyString();
+		
+	    SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_WRITEABLE);
+	    String oldHighscore = settings.getString(difficulty, Highscores.defValue);
+	    Log.d(TAG, "saving highscore with diff "+
+	    		difficulty+" and time "+
+	    		newTime+" and old hs "+
+	    		oldHighscore);
+
+	    /* Save the time if its was faster than old highscore. */
+		if (oldHighscore.equals(Highscores.defValue))
+			setNewHighscore(difficulty, newTime, settings);
+	    else{
+	    	String tempnt = newTime.replace(":", "");
+	    	String temoldhs = oldHighscore.replace(":", "");
+	    	if(Integer.parseInt(tempnt) < Integer.parseInt(temoldhs))
+	    		setNewHighscore(difficulty, newTime, settings);
+	    }
+	}
+
+	private void setNewHighscore(String difficulty, String time, SharedPreferences settings) {
+		Toast.makeText(this, "Highscore in " + difficulty, Toast.LENGTH_LONG).show();
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putString(difficulty, time);
+        if(!editor.commit())
+    		Log.e(TAG, "Couldn't set new highscore");
 	}
 
 

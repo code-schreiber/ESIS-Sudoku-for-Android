@@ -23,7 +23,7 @@
 		android:id="@+id/textview" 
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent" 
-		android:text="@string/Infotext" android:layout_alignParentBottom="true">
+		android:text="@string/DevelopedBy" android:layout_alignParentBottom="true">
 	</TextView>
 
 </RelativeLayout>

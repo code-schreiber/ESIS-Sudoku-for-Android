@@ -6,15 +6,15 @@
 	<!--           App strings           -->
 	<!-- =============================== -->
 
-	<string name="Infotext">developed by Sebastian from ESIS</string>
+	<string name="DevelopedBy">developed by the second \"S\" of ESIS</string>
 	<string name="app_name">ESISudoku</string>
-	<string name="keepPlayingText">Almost done!!! \nYour sudoku has still some errors!</string>
-	<string name="no_help_needed">Your Sudoku is full</string>
-
 
 	<!-- =============================== -->
 	<!--    Activity Specific strings    -->
 	<!-- =============================== -->
+	
+	
+	<!--    Game Activity     -->
 
 	<string name="Won_Title">Congrats, You Won!</string>
 
@@ -25,14 +25,29 @@
 
 	<string name="saving_game">Saving Game</string>
 
+	<string name="keepPlayingText">Almost done!!! \nYour sudoku has still some errors!</string>
+
+	<string name="no_help_needed">Your Sudoku is full</string>
+
+
+	<!--    Welcome Activity    -->
+	
+	<string name="Easy">Easy</string>
+	<string name="Medium">Medium</string>
+	<string name="Hard">Hard</string>
+
 	<string name="Feedback_Message">Any comments or ideas are welcome.\nIf you want to
 		share some piece of mind please send an Email
 		to\nsebasguillen@gmail.com.\nWe would really apreciate it.</string>
 	
+	
+	<!--    Highscores Activity    -->
+
 	<string name="Reset">Reset</string>
 	
 	<string name="Highscores"><b>Highscores</b></string>
 	
-	<string name="Highscore_format"><b>%1$s:</b> %2$s</string>
+	<string name="Highscore_format">%1$s :  %2$s</string>
+
 
 </resources>

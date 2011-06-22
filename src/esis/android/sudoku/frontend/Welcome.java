@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
@@ -18,6 +20,10 @@ import android.widget.Toast;
 import esis.android.sudoku.R;
 import esis.android.sudoku.backend.MyApp;
 
+/**
+ * @author Sebastian Guillen
+ * TODO rename this class
+ */
 
 public class Welcome extends Activity{
 
@@ -30,74 +36,78 @@ public class Welcome extends Activity{
        	setContentView(R.layout.welcome);
         InitRadioGroup();
         InitButtons();
-    	//TODO here: get the saved difficulty getPreferences(mode) and check the radiobutton difficultyRadioGroup.check(id)
-        RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
-        MyApp.setDifficulty(rg.getCheckedRadioButtonId());
-        if (MyApp.difficultyIsValid())
-            rg.check(MyApp.getDifficultyID());
+        loadDifficulty();
     }
+
+	private void loadDifficulty() {
+		RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
+        SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_READABLE);
+        rg.check(MyApp.getDifficultyID(s.getInt(MyApp.PREFERED_DIFFICULTY, 1)));        
+        MyApp.setDifficulty(rg.getCheckedRadioButtonId());
+	}
     
 	private void InitRadioGroup() {		
 	    final RadioGroup difficultyRadioGroup = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
 	    for(int i = 0; i < difficultyRadioGroup.getChildCount(); i++){
 	    	RadioButton radioButton = (RadioButton)difficultyRadioGroup.getChildAt(i);
 		    radioButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {				
-			    MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());
-			}
+				public void onClick(View v) {				
+				    MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());
+			        SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_WRITEABLE);
+			        Editor e = s.edit();
+			        e.putInt(MyApp.PREFERED_DIFFICULTY, MyApp.getdifficulty());
+			        e.commit();
+				}
 		    });
 	    }
 	}
 
     private void InitButtons() {
-	Button b = (Button) findViewById(R.id.NewGameButton);
-	b.setOnClickListener(new View.OnClickListener() {
-	    public void onClick(View v) {
-		newGameButtonAction(v);
-	    }
-	});
-	b = (Button) findViewById(R.id.LoadGameButton);
-	b.setOnClickListener(new View.OnClickListener() {
-	    public void onClick(View v) {
-		loadgameButtonAction(v);
-	    }
-	});
-	b = (Button) findViewById(R.id.HighscoresButton);
-	b.setOnClickListener(new View.OnClickListener() {
-	    public void onClick(View v) {
-		Intent intent = new Intent();
-		intent.setClass(Welcome.this, Highscores.class);
-		Welcome.this.startActivity(intent);
-	    }
-	});
-	b = (Button) findViewById(R.id.FeedbackButton);
-	b.setOnClickListener(new View.OnClickListener() {
-	    public void onClick(View v) {
-		launchFeedbackDialog(v);
-	    }
-	});
-	b = (Button) findViewById(R.id.ExitButton);
-	b.setOnClickListener(new View.OnClickListener() {
-	    public void onClick(View v) {
-		ExitGame();
-	    }
-	});
+		Button b = (Button) findViewById(R.id.NewGameButton);
+		b.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+			newGameButtonAction(v);
+		    }
+		});
+		b = (Button) findViewById(R.id.LoadGameButton);
+		b.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+			loadgameButtonAction(v);
+		    }
+		});
+		b = (Button) findViewById(R.id.HighscoresButton);
+		b.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+			Intent intent = new Intent();
+			intent.setClass(Welcome.this, Highscores.class);
+			Welcome.this.startActivity(intent);
+		    }
+		});
+		b = (Button) findViewById(R.id.FeedbackButton);
+		b.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+			launchFeedbackDialog(v);
+		    }
+		});
+		b = (Button) findViewById(R.id.ExitButton);
+		b.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+			ExitGame();
+		    }
+		});
     }
 
     private void newGameButtonAction(View v) {
-	if (MyApp.saved_game_exists) {
-	    deleteSavedGameWarning(v);
-	} else {
-	    RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
-	    CharSequence difficulty = ((RadioButton) findViewById(rg
-		    .getCheckedRadioButtonId())).getText();
-	    Toast.makeText(v.getContext(),
-		    "Creating " + difficulty + " Sudoku",
-		    Toast.LENGTH_LONG).show();
-	    Intent intent = new Intent();
-	    intent.setClass(Welcome.this, Game.class);
-	    Welcome.this.startActivity(intent);
-	}
+		if (MyApp.saved_game_exists) {
+		    deleteSavedGameWarning(v);
+		} else {
+		    RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
+		    CharSequence difficulty = ((RadioButton) findViewById(rg.getCheckedRadioButtonId())).getText();
+		    Toast.makeText(v.getContext(), "Creating " + difficulty + " Sudoku", Toast.LENGTH_LONG).show();
+		    Intent intent = new Intent();
+		    intent.setClass(Welcome.this, Game.class);
+		    Welcome.this.startActivity(intent);
+		}
     }
 
     private void loadgameButtonAction(View v) {
@@ -112,7 +122,8 @@ public class Welcome extends Activity{
 	    Toast.makeText(v.getContext(), R.string.no_game_to_load,
 		    Toast.LENGTH_SHORT).show();
     }
-	private void ExitGame(){
+	
+    private void ExitGame(){
 	    Log.d(TAG, "Exiting App");
 	    this.finish();
 	}	

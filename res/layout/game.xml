@@ -4,7 +4,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/ll" 
 	android:layout_height="match_parent" 
-	android:layout_width="match_parent">
+	android:layout_width="match_parent" android:gravity="center_horizontal">
 
 	<!--Dummy Layout for first Focus-->
 	<LinearLayout 
@@ -14,13 +14,13 @@
 		android:layout_height="0px">
 	</LinearLayout>
 
-	<LinearLayout android:id="@+id/ButtonsLayout" android:layout_height="wrap_content" android:gravity="center" android:layout_width="match_parent">
-		<Button android:layout_width="wrap_content"  android:text="Restart" android:id="@+id/ResetButton" android:layout_height="wrap_content"></Button>
-		<Button android:layout_width="wrap_content"  android:text="Pause" android:id="@+id/PauseButton" android:layout_height="wrap_content"></Button>
-		<Button android:layout_width="wrap_content"  android:text=" Check " android:id="@+id/CheckButton" android:layout_height="wrap_content"></Button>
-		<Button android:layout_width="wrap_content" android:text="Help" android:id="@+id/HelpButton" android:layout_height="wrap_content"></Button>
-		<Button android:layout_width="wrap_content"  android:text="Save" android:id="@+id/SaveButton" android:layout_height="wrap_content"></Button>
-	</LinearLayout>
+	<TableRow android:id="@+id/ButtonsLayout" android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal">
+		<Button android:layout_width="wrap_content"  android:text="Restart" android:id="@+id/ResetButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
+		<Button android:layout_width="wrap_content"  android:text="Pause" android:id="@+id/PauseButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
+		<Button android:layout_width="wrap_content"  android:text="Check" android:id="@+id/CheckButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
+		<Button android:layout_width="wrap_content" android:text="Help" android:id="@+id/HelpButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
+		<Button android:layout_width="wrap_content"  android:text="Save" android:id="@+id/SaveButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
+	</TableRow>
 	
 	<TableLayout 
 		android:layout_width="fill_parent" 
@@ -45,8 +45,7 @@
 		android:gravity="center" 
 		android:id="@+id/SudokuGridLayout"
 		android:layout_below="@+id/SudokuGridSeparator" 
-		android:stretchColumns="9" 
-		android:layout_height="wrap_content" android:shrinkColumns="9">
+		android:layout_height="wrap_content">
 
 		<!-- INFO:
 			Dimension A dimension value defined in XML. A dimension is specified
@@ -642,7 +641,7 @@
 		android:layout_below="@+id/SudokuGridLayout">
 		<TextView 
 			android:id="@+id/textview"
-			android:text="@string/Infotext"
+			android:text="@string/DevelopedBy"
 			android:layout_height="match_parent" 
 			android:layout_width="match_parent" 
 			android:layout_weight="1">

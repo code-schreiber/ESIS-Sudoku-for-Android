@@ -18,43 +18,67 @@ import esis.android.sudoku.backend.MyApp;
  * @author Sebastian Guillen
  *
  */
+
 public class Highscores extends Activity {
 
     private static final String TAG = Highscores.class.getSimpleName();
-    private static final String Easy_key = "Easy";
-    private static final String Medium_key = "Medium";
-    private static final String Hard_key = "Hard";
+    private static String Easy_key = "";
+    private static String Medium_key = "";
+    private static String Hard_key = "";
     /** Value to return if preference does not exist. */
     public static final String defValue = "none";
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-	super.onCreate(savedInstanceState);
-	setContentView(R.layout.highscores);
-	InitButtons();
-	restorePreferences();  
-    }
-    
-    private void InitButtons() {
-	Button button =	(Button)findViewById(R.id.ResetHighscoresButton);
-	button.setOnClickListener(new View.OnClickListener() {
-	    public void onClick(View v) {
-		resetHighscoresWarning(v);
-	    }
-	});
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.highscores);
+		InitButtons();
+		updateGui();
+		setListener();
     }
 
+	private void InitButtons() {
+		Button button =	(Button)findViewById(R.id.ResetHighscoresButton);
+		button.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+		    	showWarning(v);
+		    }
+		});
+	}
+
+	private void setListener() {
+		OnSharedPreferenceChangeListener listener = new OnSharedPreferenceChangeListener() {
+		    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		    	Log.d(TAG, "LISTENING "+ key);
+		    	updateGuiHighscore(key);
+		    }
+		};
+		SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_READABLE);
+		settings.registerOnSharedPreferenceChangeListener(listener);
+	}
+
+	private void updateGui() {
+		Easy_key = getString(R.string.Easy);
+		Medium_key = getString(R.string.Medium);
+		Hard_key = getString(R.string.Hard);	
+		updateGuiHighscore(Easy_key);
+		updateGuiHighscore(Medium_key);
+		updateGuiHighscore(Hard_key);
+	}
+    
     private void resetHighscores() {
-        SharedPreferences settings = getPreferences(MODE_WORLD_WRITEABLE);
+    	Log.d(TAG, "Reseting Highscores ");
+        SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_WRITEABLE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(Easy_key, defValue);
         editor.putString(Medium_key, defValue);
         editor.putString(Hard_key, defValue);
-        editor.commit();
+        if(!editor.commit())
+        		Log.e(TAG, "Couldn't reset highscores");
     }
     
-    private void updateGuiHighscore(String key, String value) {
+    private void updateGuiHighscore(String key) {
         int fromWhom = 0;
         if (key == Easy_key)
         	fromWhom = R.id.Highscore_easy_view;
@@ -62,50 +86,30 @@ public class Highscores extends Activity {
         	fromWhom = R.id.Highscore_medium_view;
         else if (key == Hard_key)
         	fromWhom = R.id.Highscore_hard_view;
-    	
-	String text = String.format(getString(fromWhom), key, value);//BUG: returning false!
-	Log.d(TAG, text);
-	Log.d(TAG, getString(fromWhom));
-	Log.d(TAG, key);
-	Log.d(TAG, value);
-	
-	((TextView)findViewById(fromWhom)).setText(text);//TODO does this errase the format?
+
+	    SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_READABLE);
+	    String value = settings.getString(key, defValue);
+	    String format = getString(R.string.Highscore_format);
+		String text = String.format(format, key, value);
+		((TextView)findViewById(fromWhom)).setText(text);
     }
 
-    private void resetHighscoresWarning(final View v) {
-	new AlertDialog.Builder(v.getContext())
-		.setMessage("Are you shure you want to reset all Highscores?")
-		.setPositiveButton("Yeap", 
-		new DialogInterface.OnClickListener() {
-		    public void onClick(DialogInterface dialog, int whichButton) {
-			Toast.makeText(v.getContext(), "Highscores Reseted", Toast.LENGTH_SHORT).show();
-			resetHighscores();
-		    }
-		})
-		.setNegativeButton("mmh..", 
-		new DialogInterface.OnClickListener() {
+    private void showWarning(final View v) {
+		new AlertDialog.Builder(v.getContext())
+			.setMessage("Are you shure you want to reset all Highscores?")
+			.setPositiveButton("Yeap", 
+			new DialogInterface.OnClickListener() {
+			    public void onClick(DialogInterface dialog, int whichButton) {
+				Toast.makeText(v.getContext(), "Highscores Cleared", Toast.LENGTH_SHORT).show();
+				resetHighscores();
+			    }
+			})
+			.setNegativeButton("mmh..", 
+			new DialogInterface.OnClickListener() {
 		    public void onClick(DialogInterface dialog, int whichButton) {
 			/* do nothing */
 		    }
 		}).create().show();
-    }
-    
-    public class MyListener implements OnSharedPreferenceChangeListener{
-
-		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-			
-		}
-    }
-	
-    private void restorePreferences() {
-    	OnSharedPreferenceChangeListener listener = new OnSharedPreferenceChangeListener() {
-    	    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    		updateGuiHighscore(key, sharedPreferences.getString(key, Highscores.defValue));
-    	    }
-    	};
-    	SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES_FILE, MODE_WORLD_READABLE);
-    	settings.registerOnSharedPreferenceChangeListener(listener);
-
     }
 
     

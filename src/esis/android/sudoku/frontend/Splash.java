@@ -8,6 +8,11 @@ import android.widget.RelativeLayout;
 import esis.android.sudoku.R;
 import esis.android.sudoku.backend.MyApp;
 
+/**
+ * @author Sebastian Guillen
+ *
+ */
+
 public class Splash extends Activity{
 
 	boolean alreadyStarted = false;
@@ -21,7 +26,7 @@ public class Splash extends Activity{
     	final RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
         final boolean _active = true;
         //TODO Remove wait time and implement a real splash screen. Until now we wait 3 seconds to continue (or continue when tapped)
-        final int _splashTime = 3*1000;
+        final int _splashTime = 0*1000;
         
         
     	splashLayout.setOnClickListener(new View.OnClickListener() {

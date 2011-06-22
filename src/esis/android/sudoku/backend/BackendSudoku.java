@@ -3,30 +3,40 @@ package esis.android.sudoku.backend;
 import java.util.Random;
 
 /**
- * @authors Sergej Thomas, Sebastian Guillen
- * 
+ * @author Sergej Thomas
+ * @author Sebastian Guillen
  */
 
 public class BackendSudoku {
 
 	public static final int SIZE = 9;
 	private static final String TAG = BackendSudoku.class.getSimpleName();
-	private static final int REMOVE_LOTS = 63;//TODO idea! choosing dificulty in MYApp and change them from settings?
+	
+	/** Maximale Anzahl Zahlen, die theoretisch entfernt werden koennten */
+	private static final int REMOVE_LOTS = 63;
 	private static final int REMOVE_SOME = 45;
 	private static final int REMOVE_FEW = 35;
 	
-	public int unsolved_grid[][];/** < Raetselfeld */
-	public int solved_grid[][];/** < Loesungsfeld */
+	/** < Raetselfeld */
+	public int unsolved_grid[][];
+	/** < Loesungsfeld */
+	public int solved_grid[][];
 	
-	private int numberOfSolutions;	/** < Anzahl der moeglichen Loesungen */
-	private int random;		/** < Zufallszahlen zum erzeugen vom Sudoku */
-	private int random_coordinate;	/** < Erste zufaellige Koordinate zum Zahlen entfernen */
-	private int backup1;	/** < Sicherheitskopie der zu entfernenden Zahl */
-	private int backup2;	/** < Sicherheitskopie der zu entfernenden drehsymmetrischen Zahl */
-	private int elem;		/** < Anzahl zu pruefender Zellen im Feld */
+	/** < Anzahl der moeglichen Loesungen */
+	private int numberOfSolutions;
+	/** < Zufallszahlen zum erzeugen vom Sudoku */
+	private int random;
+	/** < Erste zufaellige Koordinate zum Zahlen entfernen */
+	private int random_coordinate;	
+	/** < Sicherheitskopie der zu entfernenden Zahl */
+	private int backup1;	
+	/** < Sicherheitskopie der zu entfernenden drehsymmetrischen Zahl */
+	private int backup2;
+	/** < Anzahl zu pruefender Zellen im Feld */
+	private int elem;	
 	private Random rand;
 	
-	public class Zellen{		
+	private class Zellen{		
 		private int zeile;
 		private int spalte;		
 		public int getZeile(){return zeile;}
@@ -71,7 +81,7 @@ public class BackendSudoku {
 		removeRndCells(difficulty);
 	}
 
-	public boolean create_sudoku(int zeile, int spalte, int[][] grid) {
+	private boolean create_sudoku(int zeile, int spalte, int[][] grid) {
 		random = (1 + rand.nextInt(SIZE)); // Zufallszahl zwischen 1
 		// und 9 erzeugen
 
@@ -110,16 +120,10 @@ public class BackendSudoku {
 		return false; // Misserfolg
 	}
 
-	public void removeRndCells(int difficulty) {//FIXME this is way to slow for REMOVE_LOTS
+	private void removeRndCells(int difficulty) {//FIXME this is way to slow for REMOVE_LOTS
 
-		int quantityToRemove = 0; // zu entfernende Zahlen
-
-		if (difficulty == MyApp.EASY)
-		    quantityToRemove = REMOVE_FEW;
-		else if (difficulty == MyApp.MEDIUM)
-		    quantityToRemove = REMOVE_SOME;
-		else if (difficulty == MyApp.HARD)
-		    quantityToRemove = REMOVE_LOTS; // Maximale Anzahl Zahlen, die theoretisch entfernt werden koennten
+		// zu entfernende Zahlen
+		int quantityToRemove = getHowManyNumbersToRemove(difficulty);
 
 		for (int i = 0; i < SIZE; ++i)// belegte Zellen in feld speichern
 			for (int j = 0; j < SIZE; ++j) {
@@ -157,7 +161,18 @@ public class BackendSudoku {
 		}
 	}
 
-	public int countEmptyCells() {
+	public int getHowManyNumbersToRemove(int difficulty) {
+		int quantityToRemove = 0;
+		if (difficulty == MyApp.EASY)
+		    quantityToRemove = REMOVE_FEW;
+		else if (difficulty == MyApp.MEDIUM)
+		    quantityToRemove = REMOVE_SOME;
+		else if (difficulty == MyApp.HARD)
+		    quantityToRemove = REMOVE_LOTS;
+		return quantityToRemove;
+	}
+
+	private int countEmptyCells() {
 
 		int emptyCells = 0;
 
@@ -168,7 +183,7 @@ public class BackendSudoku {
 		return emptyCells;
 	}
 
-	public void copyGrid() {
+	private void copyGrid() {
 
 		for (int i = 0; i < SIZE; ++i) {
 			for (int j = 0; j < SIZE; ++j) {
@@ -177,7 +192,7 @@ public class BackendSudoku {
 		}
 	}
 
-	public boolean checkUnique(int[][] grid) {
+	private boolean checkUnique(int[][] grid) {
 
 		numberOfSolutions = 0;
 		countSolutions(0, 0, grid);
@@ -190,7 +205,7 @@ public class BackendSudoku {
 			return false;
 	}
 
-	public boolean countSolutions(int zeile, int spalte, int[][] grid) {
+	private boolean countSolutions(int zeile, int spalte, int[][] grid) {
 
 		// Zeilenwechsel
 		if (spalte == SIZE) {
@@ -219,14 +234,14 @@ public class BackendSudoku {
 
 	}
 
-	public boolean check(int zeile, int spalte, int zahl, int[][] grid) {
+	private boolean check(int zeile, int spalte, int zahl, int[][] grid) {
 		if (checkZeile(zeile, zahl, grid) || checkSpalte(spalte, zahl, grid)
 				|| checkBlock(zeile, spalte, zahl, grid))
 			return true;// Es gibt schon die Zahl (Sudoku Regelverletzung)
 		return false;
 	}
 
-	public boolean checkZeile(int zeile, int zahl, int[][] grid) {
+	private boolean checkZeile(int zeile, int zahl, int[][] grid) {
 
 		for (int i = 0; i < SIZE; ++i)
 			if (grid[zeile][i] == zahl)
@@ -234,7 +249,7 @@ public class BackendSudoku {
 		return false;
 	}
 
-	public boolean checkSpalte(int spalte, int zahl, int[][] grid) {
+	private boolean checkSpalte(int spalte, int zahl, int[][] grid) {
 
 		for (int i = 0; i < SIZE; i++)
 			if (grid[i][spalte] == zahl)
@@ -242,7 +257,7 @@ public class BackendSudoku {
 		return false;
 	}
 
-	public boolean checkBlock(int zeile, int spalte, int zahl, int[][] grid) {
+	private boolean checkBlock(int zeile, int spalte, int zahl, int[][] grid) {
 
 		// Linke obere Ecke(Anfang) des 3x3 Blocks bestimmen
 		int s_start = (int) (spalte / 3) * 3;

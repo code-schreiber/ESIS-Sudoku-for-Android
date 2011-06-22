@@ -9,6 +9,11 @@ import java.io.IOException;
 import android.content.Context;
 import android.util.Log;
 
+/**
+ * @author Sebastian Guillen
+ *
+ */
+
 public class FileSystemTool {
 
     private static final String TAG = FileSystemTool.class.getSimpleName();

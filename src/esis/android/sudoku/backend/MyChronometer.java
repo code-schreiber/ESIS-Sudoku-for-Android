@@ -5,6 +5,11 @@ import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.widget.Chronometer;
 
+/**
+ * @author Sebastian Guillen
+ *
+ */
+
 /* Class made to make chronometer pausing easier */
 public class MyChronometer extends Chronometer {
 
@@ -48,5 +53,5 @@ public class MyChronometer extends Chronometer {
 		return lastTimePaused + SystemClock.elapsedRealtime();
 	}
 	
-	
+
 }
