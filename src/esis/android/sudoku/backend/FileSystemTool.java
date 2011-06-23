@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import android.content.Context;
 import android.util.Log;
+import esis.android.sudoku.R;
 
 /**
  * @author Sebastian Guillen
@@ -18,10 +19,11 @@ public class FileSystemTool {
 
     private static final String TAG = FileSystemTool.class.getSimpleName();
     private final static int SIZE = BackendSudoku.SIZE;
+    private static final String SUDOKU_SAVED_FILE = "saved_sudoku_game";
 
     public static void openFile(Context context, long base, int difficulty) {
 	try {
-	    MyApp.fos = context.openFileOutput(MyApp.SUDOKU_SAVED_FILE,Context.MODE_PRIVATE);
+	    MyApp.fos = context.openFileOutput(SUDOKU_SAVED_FILE,Context.MODE_PRIVATE);
 	    MyApp.dos = new DataOutputStream(MyApp.fos);
 	    MyApp.dos.writeByte(difficulty);
 	    // set flag to load this saved game the next time a game starts
@@ -32,7 +34,7 @@ public class FileSystemTool {
 	    MyApp.saved_game_exists = true;
 	} catch (FileNotFoundException e) {
 	    MyApp.saved_game_exists = false;
-	    Log.e(TAG, e.getMessage());// TODO Make all exceptions log to console
+	    Log.e(TAG, e.getMessage());
 	} catch (IOException e) {
 	    MyApp.saved_game_exists = false;
 	    Log.e(TAG, e.getMessage());
@@ -70,10 +72,13 @@ public class FileSystemTool {
     public static DataInputStream openFileToLoad(Context context) {
 	DataInputStream dis = null;
 	try {		
-		FileInputStream fis = context.openFileInput(MyApp.SUDOKU_SAVED_FILE);
-		dis = new DataInputStream(fis);//
+            FileInputStream fis = context.openFileInput(SUDOKU_SAVED_FILE);
+            dis = new DataInputStream(fis);
 	} catch (FileNotFoundException e) {
-	    Log.e(TAG, e.getMessage());
+	    Log.d(TAG, 
+		    context.getString(R.string.no_game_to_load) +
+		    "" + e.getMessage());//AUSPROBIEREN IN EMULATOR
+	    MyApp.saved_game_exists = false;
 	}
 	return dis;
     }    
@@ -106,5 +111,6 @@ public class FileSystemTool {
 	    Log.e(TAG, e.getMessage());
 	}
     }
+
 
 }

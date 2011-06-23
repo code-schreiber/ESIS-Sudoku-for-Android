@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
@@ -22,12 +23,12 @@ import esis.android.sudoku.backend.MyApp;
 
 /**
  * @author Sebastian Guillen
- * TODO rename this class
+ * 
  */
 
-public class Welcome extends Activity{
+public class Menu extends Activity{
 
-    private static final String TAG = Welcome.class.getSimpleName();
+    private static final String TAG = Menu.class.getSimpleName();
 
     /** Called when the activity is first created. */
     @Override
@@ -36,27 +37,37 @@ public class Welcome extends Activity{
        	setContentView(R.layout.welcome);
         InitRadioGroup();
         InitButtons();
-        loadDifficulty();
+        setListenerAndReloadDifficulty();
     }
 
-	private void loadDifficulty() {
-		RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
-        SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_READABLE);
-        rg.check(MyApp.getDifficultyID(s.getInt(MyApp.PREFERED_DIFFICULTY, 1)));        
-        MyApp.setDifficulty(rg.getCheckedRadioButtonId());
+	private void setListenerAndReloadDifficulty() {
+		OnSharedPreferenceChangeListener l = new OnSharedPreferenceChangeListener() {
+		    public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+			reloadGuiDifficulty(sp, key);
+		    }
+		};
+		SharedPreferences settings = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_READABLE);
+		settings.registerOnSharedPreferenceChangeListener(l);
+	        reloadGuiDifficulty(settings, MyApp.PREFERED_DIFFICULTY);
 	}
-    
+	
+	    private void reloadGuiDifficulty(SharedPreferences sp, String key) {
+		RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
+	        int id = sp.getInt(key, MyApp.EASY);
+		rg.check(MyApp.getDifficultyID(id));
+	    	Log.d(TAG, "Difficulty reloaded "+key+", now: "+id);
+	    }
+	    
 	private void InitRadioGroup() {		
 	    final RadioGroup difficultyRadioGroup = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
 	    for(int i = 0; i < difficultyRadioGroup.getChildCount(); i++){
 	    	RadioButton radioButton = (RadioButton)difficultyRadioGroup.getChildAt(i);
 		    radioButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {				
-				    MyApp.setDifficulty(difficultyRadioGroup.getCheckedRadioButtonId());
-			        SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_WRITEABLE);
-			        Editor e = s.edit();
-			        e.putInt(MyApp.PREFERED_DIFFICULTY, MyApp.getdifficulty());
-			        e.commit();
+				    SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_WRITEABLE);
+				    Editor e = s.edit();
+				    e.putInt(MyApp.PREFERED_DIFFICULTY, MyApp.getDifficulty(difficultyRadioGroup.getCheckedRadioButtonId()));
+				    e.commit();
 				}
 		    });
 	    }
@@ -79,8 +90,8 @@ public class Welcome extends Activity{
 		b.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
 			Intent intent = new Intent();
-			intent.setClass(Welcome.this, Highscores.class);
-			Welcome.this.startActivity(intent);
+			intent.setClass(Menu.this, Highscores.class);
+			Menu.this.startActivity(intent);
 		    }
 		});
 		b = (Button) findViewById(R.id.FeedbackButton);
@@ -105,8 +116,8 @@ public class Welcome extends Activity{
 		    CharSequence difficulty = ((RadioButton) findViewById(rg.getCheckedRadioButtonId())).getText();
 		    Toast.makeText(v.getContext(), "Creating " + difficulty + " Sudoku", Toast.LENGTH_LONG).show();
 		    Intent intent = new Intent();
-		    intent.setClass(Welcome.this, Game.class);
-		    Welcome.this.startActivity(intent);
+		    intent.setClass(Menu.this, Game.class);
+		    Menu.this.startActivity(intent);
 		}
     }
 
@@ -116,8 +127,8 @@ public class Welcome extends Activity{
 	    Toast.makeText(v.getContext(), "Loading Game",
 		    Toast.LENGTH_LONG).show();
 	    Intent intent = new Intent();
-	    intent.setClass(Welcome.this, Game.class);
-	    Welcome.this.startActivity(intent);
+	    intent.setClass(Menu.this, Game.class);
+	    Menu.this.startActivity(intent);
 	} else
 	    Toast.makeText(v.getContext(), R.string.no_game_to_load,
 		    Toast.LENGTH_SHORT).show();

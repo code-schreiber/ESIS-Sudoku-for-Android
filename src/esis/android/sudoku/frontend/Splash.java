@@ -1,20 +1,25 @@
 package esis.android.sudoku.frontend;
 
+import java.io.DataInputStream;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import esis.android.sudoku.R;
+import esis.android.sudoku.backend.FileSystemTool;
 import esis.android.sudoku.backend.MyApp;
 
 /**
  * @author Sebastian Guillen
- *
+ * TODO Remove wait time and implement a real splash screen. Until now we wait 3 seconds to continue (or continue when tapped)
  */
 
 public class Splash extends Activity{
 
+    	private static final String TAG = Splash.class.getSimpleName();
 	boolean alreadyStarted = false;
 
     @Override
@@ -25,21 +30,16 @@ public class Splash extends Activity{
         
     	final RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
         final boolean _active = true;
-        //TODO Remove wait time and implement a real splash screen. Until now we wait 3 seconds to continue (or continue when tapped)
-        final int _splashTime = 0*1000;
+        final int _splashTime = 0*1000;        
         
-        
-    	splashLayout.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	startNextActivity();
-            }
-    	});
-    	
-    	MyApp myapp = (MyApp) getApplicationContext();
-    	myapp.checkForSavedGame();
-   	
+    	setLayoutListener(splashLayout);
+    	checkForSavedGame();
         // thread for displaying the SplashScreen
-        Thread splashTread = new Thread() {
+        launchThread(_active, _splashTime);
+    }
+
+    private void launchThread(final boolean _active, final int _splashTime) {
+	Thread splashTread = new Thread() {
             @Override
             public void run() {
                 try {
@@ -51,14 +51,21 @@ public class Splash extends Activity{
                         }
                     }
                 } catch(InterruptedException e) {
-                    //TODO go forth?
+                    Log.d(TAG, "Interupted: "+ e.getMessage());
                 } finally {
                     startNextActivity();
                 }
             }
         };
         splashTread.start();
+    }
 
+    private void setLayoutListener(final RelativeLayout splashLayout) {
+	splashLayout.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	startNextActivity();
+            }
+    	});
     }
     
 	private void startNextActivity() {
@@ -66,9 +73,19 @@ public class Splash extends Activity{
 			alreadyStarted = true;//so this isn't called again
 			finish();
 			Intent intent = new Intent();
-			intent.setClass(Splash.this, Welcome.class);		    	
+			intent.setClass(Splash.this, Menu.class);		    	
 			Splash.this.startActivity(intent);
 		}
+	}
+        
+
+	public void checkForSavedGame() {
+        	MyApp.saved_game_exists = true;
+        	DataInputStream dis = FileSystemTool.openFileToLoad(getApplicationContext());
+        	int readedByte = FileSystemTool.readBytes(dis);
+        	if(readedByte < 1)
+        	    MyApp.saved_game_exists = false;
+        	FileSystemTool.closeFis(dis);
 	}
 
 

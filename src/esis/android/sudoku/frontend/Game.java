@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -49,9 +50,13 @@ public class Game extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		InitButtons();
-		removedNrs = backendsudoku.getHowManyNumbersToRemove(MyApp.getdifficulty());
+		getRemovedNrs();
 		InitCellListeners();
 		NewGame();
+	}
+
+	private void getRemovedNrs() {	   	
+	    removedNrs = backendsudoku.getHowManyNumbersToRemove(getDifficulty());
 	}
 
 	/**	Release focus when number is typed in (listener to all cells) */
@@ -66,7 +71,7 @@ public class Game extends Activity {
 			        		imm.hideSoftInputFromWindow(guiText.getWindowToken(), 0);
 			        		triesCounter++;
 			        		if (triesCounter >= removedNrs)
-			        			checkIfWon(true);	
+			        			checkIfWon();	
 			        	}
 			        	else
 			        		triesCounter--;
@@ -86,15 +91,18 @@ public class Game extends Activity {
 		if (MyApp.saved_game_exists) {// Load previously saved game
 			loadGame();// copy user grid to GUI
 		} else {
-			backendsudoku.create_game(MyApp.getdifficulty());
-			if (!MyApp.difficultyIsValid())
-				Log.e(TAG, "Difficulty not set.");			
-			Log.d(TAG, "New Game Called with difficulty " + MyApp.getdifficulty());
+			backendsudoku.create_game(getDifficulty());
+			Log.d(TAG, "New Game Called with difficulty " + getDifficulty());
 			ResetGame();			
 		}
 		((Button) findViewById(R.id.CheckButton)).setEnabled(true);
 		enableOrDisableHelpResetPause(true);
 		((MyChronometer) findViewById(R.id.chronometer)).start();
+	}
+
+	private int getDifficulty() {
+	    SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_READABLE);
+	    return s.getInt(MyApp.PREFERED_DIFFICULTY, MyApp.EASY);
 	}
 
 	private void PauseGame() {
@@ -153,7 +161,7 @@ public class Game extends Activity {
 		Toast.makeText(this, R.string.saving_game, Toast.LENGTH_SHORT).show();
 		//Open file
 		long base = ((MyChronometer) findViewById(R.id.chronometer)).getBase();
-		FileSystemTool.openFile(getApplicationContext(), base, MyApp.getdifficulty());
+		FileSystemTool.openFile(getApplicationContext(), base, getDifficulty());
 		int[][] guiCells = new int[SIZE][SIZE];
 		copyGuiCellsToArray(guiCells);
 		FileSystemTool.writeGameToFile(backendsudoku.solved_grid, backendsudoku.unsolved_grid, guiCells);
@@ -191,15 +199,10 @@ public class Game extends Activity {
 	}
 
 	private void loadDifficulty(int loadedDifficulty) {	    
-	    if (loadedDifficulty == MyApp.EASY)
-	        loadedDifficulty = R.id.radio_easy;
-	    else if (loadedDifficulty == MyApp.MEDIUM)
-	        loadedDifficulty = R.id.radio_medium;
-	    else if (loadedDifficulty == MyApp.HARD)
-	    	loadedDifficulty = R.id.radio_hard;
-	    else
-		return;
-	    MyApp.setDifficulty(loadedDifficulty);
+	    SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_WRITEABLE);
+	    Editor e = s.edit();
+	    e.putInt(MyApp.PREFERED_DIFFICULTY, loadedDifficulty);
+	    e.commit();
 	}
 
 	private void copyUserNumbersToGui(int[][] user_entered_numbers) {
@@ -223,7 +226,7 @@ public class Game extends Activity {
 	    	}
 	}
 
-	private void InitButtons() {//TODO make buttons same size    	
+	private void InitButtons() {    	
 		Button button;
 
 		button = (Button) findViewById(R.id.CheckButton);
@@ -300,15 +303,14 @@ public class Game extends Activity {
 		if (((Button) findViewById(R.id.CheckButton)).getText().equals("Check"))
 			checking = true;// Checking
 		check(checking);
-		checkIfWon(checking);
 	}
 
-	private void checkIfWon(boolean checking) {
+	private void checkIfWon() {
 		if (sudokuIsComplete())
 			if (sudokuIsCorrect())
 				gameWon();
 			else
-				keepPlaying(checking);
+				keepPlaying();
 	}
 
 	private void check(boolean action) {
@@ -324,19 +326,23 @@ public class Game extends Activity {
 		enableOrDisableHelpResetPause(!action);
 		((Button) findViewById(R.id.SaveButton)).setEnabled(!action);
 
-    	for (int row = 0; row < SIZE; ++row)
-    	    for (int column = 0; column < SIZE; ++column) {
-    		EditText guiText = (EditText) findViewById(getEditTextId(row, column));
-        		if (guiText.isFocusable()) {// if it is a user cell
-        		    guiText.setEnabled(!action);
-        		    if (!guiText.getText().toString().equals("")) {
-        			if (!action)
-        			    guiText.setTextColor(getResources().getColor(R.color.solid_black));
-        			else
-        			    markMistakes(guiText, row, column);
-        		    }
-        		}
-    	    }
+		noName(action);
+	}
+
+	private void noName(boolean action) {//Fixme rename FIXME
+	    for (int row = 0; row < SIZE; ++row)
+	        for (int column = 0; column < SIZE; ++column) {
+	    	EditText guiText = (EditText) findViewById(getEditTextId(row, column));
+	    		if (guiText.isFocusable()) {// if it is a user cell
+	    		    guiText.setEnabled(!action);
+	    		    if (!guiText.getText().toString().equals("")) {
+	    			if (!action)
+	    			    guiText.setTextColor(getResources().getColor(R.color.solid_black));
+	    			else
+	    			    markMistakes(guiText, row, column);
+	    		    }
+	    		}
+	        }
 	}
 
 	private void enableOrDisableHelpResetPause(boolean b) {
@@ -346,10 +352,8 @@ public class Game extends Activity {
 	}
 
 	private void markMistakes(TextView guiText, int row, int column) {
-		if (guiText.getText().toString().equals(Integer.toString(backendsudoku.solved_grid[row][column])))
-			guiText.setTextColor(getResources().getColor(R.color.solid_blue));// good TODO IDEA: only mark errors.
-		else
-			guiText.setTextColor(getResources().getColor(R.color.solid_red));// make red
+		if (!guiText.getText().toString().equals(Integer.toString(backendsudoku.solved_grid[row][column])))
+		    guiText.setTextColor(getResources().getColor(R.color.solid_red));// make mistakes red
 	}
 
 	private boolean sudokuIsComplete() {
@@ -372,65 +376,64 @@ public class Game extends Activity {
 		return true;
 	}
 
-	private void keepPlaying(boolean action) {
-		if (action)
-			Toast.makeText(this, R.string.keepPlayingText, Toast.LENGTH_LONG).show();
+	private void keepPlaying() {
+	    Toast.makeText(this, R.string.keepPlayingText, Toast.LENGTH_LONG).show();
 	}
 
 	private void gameWon() {
 		MyChronometer c = ((MyChronometer) findViewById(R.id.chronometer));
 		c.stop();
-		MyApp.saved_game_exists = false;// no chance to load an already won game
 		check(false);// uncheck the game in background
-
-		new AlertDialog.Builder(this)
-			.setIcon(R.drawable.icon)
-			.setTitle(R.string.Won_Title)
-			.setMessage(R.string.Won_Mesage)
-			.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-        		    public void onClick(DialogInterface dialog, int whichButton) {
-        			/* User clicked OK so do some stuff */
-        			NewGame();
-        			//TODO delete saved file
-        		    }
-        		}).setNegativeButton("Menu", new DialogInterface.OnClickListener() {
-        			    public void onClick(DialogInterface dialog,
-        				    int whichButton) {
-        				/* User clicked Cancel so do some stuff */
-        				Game.this.finish();
-        			    }
-        		}).create().show();
+		showWonMessage();
 		saveHighscore(c.getText().toString());
 	}
 
-	private void saveHighscore(String newTime) {
-		MyApp ma = (MyApp) getApplication();
-		String difficulty = ma.getDifficultyString();
-		
-	    SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_WRITEABLE);
-	    String oldHighscore = settings.getString(difficulty, Highscores.defValue);
-	    Log.d(TAG, "saving highscore with diff "+
-	    		difficulty+" and time "+
-	    		newTime+" and old hs "+
-	    		oldHighscore);
-
-	    /* Save the time if its was faster than old highscore. */
-		if (oldHighscore.equals(Highscores.defValue))
-			setNewHighscore(difficulty, newTime, settings);
-	    else{
-	    	String tempnt = newTime.replace(":", "");
-	    	String temoldhs = oldHighscore.replace(":", "");
-	    	if(Integer.parseInt(tempnt) < Integer.parseInt(temoldhs))
-	    		setNewHighscore(difficulty, newTime, settings);
-	    }
+	private void showWonMessage() {
+	    new AlertDialog.Builder(this)
+	    	.setIcon(R.drawable.icon)
+	    	.setTitle(R.string.Won_Title)
+	    	.setMessage(R.string.Won_Mesage)
+	    	.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+	    	    public void onClick(DialogInterface dialog, int whichButton) {
+	    		/* User clicked OK so do some stuff */
+	    		NewGame();
+	    		//TODO delete saved file
+	    	    }
+	    	}).setNegativeButton("Menu", new DialogInterface.OnClickListener() {
+	    		    public void onClick(DialogInterface dialog,
+	    			    int whichButton) {
+	    			/* User clicked Cancel so do some stuff */
+	    			Game.this.finish();
+	    		    }
+	    	}).create().show();
 	}
+
+        private void saveHighscore(String newTime) {
+        	MyApp ma = (MyApp) getApplication();
+        	String difName = ma.getDifficultyString(getDifficulty());
+        
+        	SharedPreferences sp = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_WRITEABLE);
+        	String oldHscore = sp.getString(difName, Highscores.defValue);
+        	Log.d(TAG, "saving highscore with diff " + difName + " and time "
+        		+ newTime + " and old hs " + oldHscore);
+        
+        	/* Save the time if its was faster than old highscore. */
+        	if (oldHscore.equals(Highscores.defValue))
+        	    setNewHighscore(difName, newTime, sp);
+        	else {
+        	    String newinInt = newTime.replace(":", "");
+        	    String oldinInt = oldHscore.replace(":", "");
+        	    if (Integer.parseInt(newinInt) < Integer.parseInt(oldinInt))
+        		setNewHighscore(difName, newTime, sp);
+        	}
+        }
 
 	private void setNewHighscore(String difficulty, String time, SharedPreferences settings) {
 		Toast.makeText(this, "Highscore in " + difficulty, Toast.LENGTH_LONG).show();
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(difficulty, time);
-        if(!editor.commit())
-    		Log.e(TAG, "Couldn't set new highscore");
+                if(!editor.commit())
+            		Log.e(TAG, "Couldn't set new highscore");
 	}
 
 
