@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
@@ -19,6 +20,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import esis.android.sudoku.R;
+import esis.android.sudoku.backend.FileSystemTool;
 import esis.android.sudoku.backend.MyApp;
 
 /**
@@ -35,29 +37,29 @@ public class Menu extends Activity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       	setContentView(R.layout.welcome);
+       	setContentView(R.layout.menu);
         InitRadioGroup();
         InitButtons();
         setListenerAndReloadDifficulty();
     }
 
 	private void setListenerAndReloadDifficulty() {
-		OnSharedPreferenceChangeListener l = new OnSharedPreferenceChangeListener() {
+		OnSharedPreferenceChangeListener li = new OnSharedPreferenceChangeListener() {
 		    public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
-			reloadGuiDifficulty(sp, key);
+		    	reloadGuiDifficulty(sp, key);
 		    }
 		};
 		SharedPreferences settings = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_READABLE);
-		settings.registerOnSharedPreferenceChangeListener(l);
-	        reloadGuiDifficulty(settings, MyApp.PREFERED_DIFFICULTY);
+		settings.registerOnSharedPreferenceChangeListener(li);
+	    reloadGuiDifficulty(settings, MyApp.PREFERED_DIFFICULTY);
 	}
 	
-	    private void reloadGuiDifficulty(SharedPreferences sp, String key) {
-		RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
-	        int id = sp.getInt(key, MyApp.EASY);
-		rg.check(MyApp.getDifficultyID(id));
-	    	Log.d(TAG, "Difficulty reloaded "+key+", now: "+id);
-	    }
+    private void reloadGuiDifficulty(SharedPreferences sp, String key) {
+    	RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
+        int id = sp.getInt(key, MyApp.EASY);
+        rg.check(MyApp.getDifficultyID(id));
+    	Log.d(TAG, "Difficulty reloaded "+key+", now: "+id);
+    }
 	    
 	private void InitRadioGroup() {		
 	    final RadioGroup difficultyRadioGroup = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
@@ -141,14 +143,16 @@ public class Menu extends Activity{
 	}	
 
 	private void launchFeedbackDialog(View v) {
-        	final SpannableString s = new SpannableString(getString(R.string.Feedback_Message));
-        	Linkify.addLinks(s, Linkify.EMAIL_ADDRESSES);
+			Resources res = getResources();
+			String s = getStringformArray(res.getStringArray(R.array.Feedback_Message));
+        	final SpannableString ss = new SpannableString(s);
+        	Linkify.addLinks(ss, Linkify.EMAIL_ADDRESSES);
         	final Button b = (Button) findViewById(R.id.FeedbackButton);
         	final AlertDialog d = new AlertDialog.Builder(v.getContext())
                     .setIcon(R.drawable.icon)
                     .setTitle(b.getText())
-                    .setMessage(s)
-                    .setPositiveButton("Good to know", new DialogInterface.OnClickListener() {
+                    .setMessage(ss)
+                    .setPositiveButton(getString(R.string.i_dont_care), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                         	//Just go away.
                         }
@@ -159,6 +163,14 @@ public class Menu extends Activity{
         	.setMovementMethod(LinkMovementMethod.getInstance());
 	}
 
+	private String getStringformArray(String[] array) {
+		String s = "";
+		for (String i : array) {
+			s += i;
+		}
+		return s;
+	}
+
 	private void deleteSavedGameWarning(View v) {
 		final Button b = (Button) findViewById(R.id.NewGameButton);
 		final Button lb = (Button) findViewById(R.id.LoadGameButton);
@@ -166,8 +178,8 @@ public class Menu extends Activity{
 		    .setMessage("This will delete a previously saved game")
 		    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
-		            /* User clicked OK so start new game */  
-		            MyApp.saved_game_exists = false;
+		            /* User clicked OK so start new game and delete last saved file*/  
+		            FileSystemTool.deleteSavedFile(getApplicationContext());
 		            b.performClick();
 		        }
 		    })

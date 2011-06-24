@@ -28,7 +28,7 @@ public class Splash extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
         
-    	final RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
+    	RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
         final boolean _active = true;
         final int _splashTime = 1*1000;        
         
@@ -60,7 +60,7 @@ public class Splash extends Activity{
         splashTread.start();
     }
 
-    private void setLayoutListener(final RelativeLayout splashLayout) {
+    private void setLayoutListener(RelativeLayout splashLayout) {
 	splashLayout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
             	startNextActivity();
@@ -82,10 +82,13 @@ public class Splash extends Activity{
 	public void checkForSavedGame() {
         	MyApp.saved_game_exists = true;
         	DataInputStream dis = FileSystemTool.openFileToLoad(getApplicationContext());
-        	int readedByte = FileSystemTool.readBytes(dis);
-        	if(readedByte < 1)
-        	    MyApp.saved_game_exists = false;
-        	FileSystemTool.closeFis(dis);
+        	if (dis != null){
+	        	int readedByte = FileSystemTool.readBytes(dis);
+	        	if(readedByte < 1)
+	        	    MyApp.saved_game_exists = false;
+	        	FileSystemTool.closeFis(dis);
+        	}
+        	Log.d(TAG, "Saved game found: "+ MyApp.saved_game_exists);
 	}
 
 

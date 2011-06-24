@@ -6,8 +6,9 @@ import android.util.AttributeSet;
 import android.widget.Chronometer;
 
 /**
- * Class made to make chronometer pausing easier.
- * 
+ * Class made to make chronometer pausing easier in {@link <Game> [Game]}.
+ * See {@link #<pause()> [pause()]} and {@link #<resume> [resume()]}
+ * {@link <Game>#<saveGame> [Do]}
  * @author Sebastian Guillen
  */
 

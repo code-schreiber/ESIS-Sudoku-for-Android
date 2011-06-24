@@ -11,6 +11,7 @@ import android.util.Log;
 import esis.android.sudoku.R;
 
 /**
+ * This class does the writing/reading when saving/loading the game.
  * @author Sebastian Guillen
  *
  */
@@ -21,96 +22,107 @@ public class FileSystemTool {
     private final static int SIZE = BackendSudoku.SIZE;
     private static final String SUDOKU_SAVED_FILE = "saved_sudoku_game";
 
-    public static void openFile(Context context, long base, int difficulty) {
-	try {
-	    MyApp.fos = context.openFileOutput(SUDOKU_SAVED_FILE,Context.MODE_PRIVATE);
-	    MyApp.dos = new DataOutputStream(MyApp.fos);
-	    MyApp.dos.writeByte(difficulty);
-	    // set flag to load this saved game the next time a game starts
-	    Log.d(TAG, "saving time: " + (base - System.currentTimeMillis()));// FIXME delete
-	    // Save Chronometer's time
-	    MyApp.dos.writeLong(base - System.currentTimeMillis());
-	    //Save Difficulty
-	    MyApp.saved_game_exists = true;
-	} catch (FileNotFoundException e) {
-	    MyApp.saved_game_exists = false;
-	    Log.e(TAG, e.getMessage());
-	} catch (IOException e) {
-	    MyApp.saved_game_exists = false;
-	    Log.e(TAG, e.getMessage());
-	}
+    public static void openFileToSave(Context context, long base, int difficulty, int tries) {
+		try {
+		    opendos(context);
+		    //Save Difficulty
+		    MyApp.dos.writeByte(difficulty);
+		    // Save Chronometer's time
+		    Log.d(TAG, "saving time: "+base+"-"+System.currentTimeMillis()+"="+ (base - System.currentTimeMillis()));// FIXME delete
+		    MyApp.dos.writeLong(base - System.currentTimeMillis());
+		    Log.d(TAG, "saving tries: "+tries);
+		    MyApp.dos.writeByte(tries);
+		    // set flag to load this saved game the next time a game starts
+		    MyApp.saved_game_exists = true;
+		} catch (FileNotFoundException e) {
+		    MyApp.saved_game_exists = false;
+		    Log.e(TAG, e.getMessage());
+		} catch (IOException e) {
+		    MyApp.saved_game_exists = false;
+		    Log.e(TAG, e.getMessage());
+		}
     }
+
+	private static void opendos(Context context) throws FileNotFoundException {
+		MyApp.fos = context.openFileOutput(SUDOKU_SAVED_FILE,Context.MODE_PRIVATE);
+		MyApp.dos = new DataOutputStream(MyApp.fos);
+	}
     
     public static void writeGameToFile(int solvedGrid[][], int unsolvedGrid[][], int guiCells[][]) {
-
-	try {
-	    for (int row = 0; row < SIZE; ++row)
-		for (int column = 0; column < SIZE; ++column) {
-		    // Write cell from solved
-		    MyApp.dos.writeByte(solvedGrid[row][column]);
-		    // Write cell from unsolved
-		    MyApp.dos.writeByte(unsolvedGrid[row][column]);
-		    // Write cells entered from user
-		    MyApp.dos.writeByte(guiCells[row][column]);
+		try {
+		    for (int row = 0; row < SIZE; ++row)
+			for (int column = 0; column < SIZE; ++column) {
+				Log.d(TAG, "Writing: "+solvedGrid[row][column]+unsolvedGrid[row][column]+guiCells[row][column]);
+			    // Write cell from solved
+			    MyApp.dos.writeByte(solvedGrid[row][column]);
+			    // Write cell from unsolved
+			    MyApp.dos.writeByte(unsolvedGrid[row][column]);
+			    // Write cells entered from user
+			    MyApp.dos.writeByte(guiCells[row][column]);
+			}
+		} catch (IOException e) {
+		    MyApp.saved_game_exists = false;
+		    Log.e(TAG, e.getMessage());
 		}
-	} catch (IOException e) {
-	    MyApp.saved_game_exists = false;
-	    Log.e(TAG, e.getMessage());
-	}
-	closeDos();
+		closeDos();
     }
 
     private static void closeDos() {
-	try {
-	    MyApp.dos.close();// this closes fos also
-	} catch (IOException e) {
-	    MyApp.saved_game_exists = false;
-	    Log.e(TAG, e.getMessage());
-	}
+		try {
+		    MyApp.dos.close();// this closes fos also
+		} catch (IOException e) {
+		    MyApp.saved_game_exists = false;
+		    Log.e(TAG, e.getMessage());
+		}
     }
 
     public static DataInputStream openFileToLoad(Context context) {
-	DataInputStream dis = null;
-	try {		
-            FileInputStream fis = context.openFileInput(SUDOKU_SAVED_FILE);
-            dis = new DataInputStream(fis);
-	} catch (FileNotFoundException e) {
-	    Log.d(TAG, 
-		    context.getString(R.string.no_game_to_load) +
-		    "" + e.getMessage());//AUSPROBIEREN IN EMULATOR
-	    MyApp.saved_game_exists = false;
-	}
-	return dis;
+		DataInputStream dis = null;
+		try {		
+	            FileInputStream fis = context.openFileInput(SUDOKU_SAVED_FILE);
+	            dis = new DataInputStream(fis);
+		} catch (FileNotFoundException e) {
+		    Log.d(TAG, 
+			    context.getString(R.string.no_game_to_load) +
+			    "" + e.getMessage());
+		    MyApp.saved_game_exists = false;
+		}
+		return dis;
     }    
 
     public static long getsavedTime(DataInputStream dis) {
-	long savedTime = 0;
-	    try {
-		savedTime += dis.readLong();
-	    } catch (IOException e) {
-		Log.e(TAG, e.getMessage());
-	    }
-	Log.d(TAG, "returning saved time: " + savedTime);// FIXME delete
-	return savedTime + System.currentTimeMillis();
+		long savedTime = 0;
+		    try {
+		    	savedTime = dis.readLong();
+		    } catch (IOException e) {
+		    	Log.e(TAG, e.getMessage());
+		    }
+		Log.d(TAG, "Saved time: " + savedTime);// FIXME delete
+		return savedTime + System.currentTimeMillis();
     }
 
     public static int readBytes(DataInputStream dis) {
-	int aByte = 0;
-	try {
-	    aByte = dis.read();
-	} catch (IOException e) {
-	    Log.e(TAG, e.getMessage());
-	}
-	return aByte;
+		int aByte = 0;
+		try {
+		    aByte = dis.read();
+		} catch (IOException e) {
+		    Log.e(TAG, e.getMessage());
+		}
+		Log.d(TAG, "Read: "+aByte);
+		return aByte;
     }
 
     public static void closeFis(DataInputStream dis) {
-	try {
-	    dis.close();
-	} catch (IOException e) {
-	    Log.e(TAG, e.getMessage());
-	}
+		try {
+		    dis.close();
+		} catch (IOException e) {
+		    Log.e(TAG, e.getMessage());
+		}
     }
 
-
+    public static void deleteSavedFile(Context c) {
+        MyApp.saved_game_exists = false;
+    	c.deleteFile(FileSystemTool.SUDOKU_SAVED_FILE);
+    }
+    
 }

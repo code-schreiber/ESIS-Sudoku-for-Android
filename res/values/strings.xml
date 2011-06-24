@@ -8,6 +8,8 @@
 
 	<string name="DevelopedBy">developed by the second \"S\" of ESIS</string>
 	<string name="app_name">ESISudoku</string>
+	<string name="app_email">sebasguillen@gmail.com</string>		
+	<string name="i_dont_care">Good to know</string>
 
 	<!-- =============================== -->
 	<!--    Activity Specific strings    -->
@@ -30,16 +32,18 @@
 	<string name="no_help_needed">Your Sudoku is full</string>
 
 
-	<!--    Welcome Activity    -->
+	<!--    Menu Activity    -->
 	
 	<string name="Easy">Easy</string>
 	<string name="Medium">Medium</string>
 	<string name="Hard">Hard</string>
 
-	<string name="Feedback_Message">Any comments or ideas are welcome.\nIf you want to
-		share some piece of mind please send an Email
-		to\nsebasguillen@gmail.com.\nWe would really apreciate it.</string>
-	
+	<string-array name="Feedback_Message">
+		<item>Any comments or ideas are welcome.\nIf you want to share some piece of mind please send an Email to\n</item>
+		<item>@string/app_email</item>
+		<item>.\nWe would really apreciate it.</item>
+	</string-array>
+
 	
 	<!--    Highscores Activity    -->
 

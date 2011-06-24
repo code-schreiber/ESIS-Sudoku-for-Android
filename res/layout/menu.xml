@@ -4,7 +4,7 @@
 	android:layout_height="fill_parent" android:gravity="top">
 
 	<TableLayout android:gravity="center" android:layout_width="fill_parent" android:layout_height="match_parent" android:id="@+id/MenuLayout">
-		<TableRow android:id="@+id/DifficultyRow">
+		<TableRow>
 			<RadioGroup android:orientation="horizontal" android:layout_height="wrap_content" android:layout_weight="1" android:id="@+id/DifficultyRadioGroup">
 				<RadioButton android:id="@+id/radio_easy" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:text="@string/Easy" android:saveEnabled="true" android:layout_weight="1" android:layout_width="match_parent"></RadioButton>
 				<RadioButton android:id="@+id/radio_medium" android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center" android:text="@string/Medium" android:saveEnabled="true" android:layout_weight="1" android:layout_width="match_parent"></RadioButton>

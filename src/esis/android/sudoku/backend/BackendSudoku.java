@@ -161,7 +161,7 @@ public class BackendSudoku {
 		}
 	}
 
-	public int getHowManyNumbersToRemove(int difficulty) {
+	public static int getHowManyNumbersToRemove(int difficulty) {
 		int quantityToRemove = 0;
 		if (difficulty == MyApp.EASY)
 		    quantityToRemove = REMOVE_FEW;

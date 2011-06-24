@@ -57,7 +57,7 @@ public class Game extends Activity {
 	}
 
 	private void getRemovedNrs() {	   	
-	    removedNrs = backendsudoku.getHowManyNumbersToRemove(getDifficulty());
+	    removedNrs = BackendSudoku.getHowManyNumbersToRemove(getDifficulty());
 	}
 
 	/**	Release focus when number is typed in (listener to all cells) */
@@ -67,15 +67,7 @@ public class Game extends Activity {
 	    	    final EditText guiText = (EditText) findViewById(getEditTextId(row, column));		
 	    	    guiText.addTextChangedListener(new TextWatcher() {
 			        public void afterTextChanged(Editable s) {
-			        	if(guiText.length() != 0){
-			        		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-			        		imm.hideSoftInputFromWindow(guiText.getWindowToken(), 0);
-			        		triesCounter++;
-			        		if (triesCounter >= removedNrs)
-			        			checkIfWon();	
-			        	}
-			        	else
-			        		triesCounter--;
+			        	guiTextChanged(guiText);
 			        }
 					public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 						if(guiText.length() > 0)
@@ -94,7 +86,8 @@ public class Game extends Activity {
 		} else {
 			backendsudoku.create_game(getDifficulty());
 			Log.d(TAG, "New Game Called with difficulty " + getDifficulty());
-			ResetGame();			
+			ResetGame();
+			triesCounter = 0;
 		}
 		((Button) findViewById(R.id.CheckButton)).setEnabled(true);
 		enableOrDisableHelpResetPause(true);
@@ -162,7 +155,7 @@ public class Game extends Activity {
 		Toast.makeText(this, R.string.saving_game, Toast.LENGTH_SHORT).show();
 		//Open file
 		long base = ((MyChronometer) findViewById(R.id.chronometer)).getBase();
-		FileSystemTool.openFile(getApplicationContext(), base, getDifficulty());
+		FileSystemTool.openFileToSave(getApplicationContext(), base, getDifficulty(), triesCounter);
 		int[][] guiCells = new int[SIZE][SIZE];
 		copyGuiCellsToArray(guiCells);
 		FileSystemTool.writeGameToFile(backendsudoku.solved_grid, backendsudoku.unsolved_grid, guiCells);
@@ -187,13 +180,16 @@ public class Game extends Activity {
 		int loadedDifficulty = FileSystemTool.readBytes(dis);
 		loadDifficulty(loadedDifficulty);
 		long savedTime = FileSystemTool.getsavedTime(dis);
+		int loadedTries = FileSystemTool.readBytes(dis);
 		loadData(dis, user_entered_numbers);
 		FileSystemTool.closeFis(dis);
 
 		// write the unsolved grid in the GUI
 		copyGrid();		
 		// write user entered numbers in the GUI
-		copyUserNumbersToGui(user_entered_numbers);		
+		copyUserNumbersToGui(user_entered_numbers);	
+		//Load the tries after they were affected in copy
+		triesCounter = loadedTries;
 		//Start Chronometer from saved time
 		((MyChronometer) findViewById(R.id.chronometer)).setBase(savedTime);
 		((MyChronometer) findViewById(R.id.chronometer)).start();
@@ -435,6 +431,20 @@ public class Game extends Activity {
 		editor.putString(difficulty, time);
                 if(!editor.commit())
             		Log.e(TAG, "Couldn't set new highscore");
+	}
+
+	private void guiTextChanged(final EditText guiText) {
+		Log.d(TAG, "listening to cell text change.");
+		if(guiText.length() != 0){
+			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(guiText.getWindowToken(), 0);
+			triesCounter++;
+			if (triesCounter >= removedNrs-10)//-10 because sometimes not so many were removed, fix this sometime
+				checkIfWon();	
+		}
+		else
+			triesCounter--;
+		Log.d(TAG, "tried "+triesCounter+" times from "+removedNrs);
 	}
 
 

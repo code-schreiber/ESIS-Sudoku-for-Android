@@ -6,6 +6,7 @@
     package="esis.android.sudoku">
     
     <uses-sdk android:minSdkVersion="8" />
+    <supports-screens android:resizeable="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="false" android:largeScreens="true"></supports-screens>
 
     <application 
     	android:icon="@drawable/icon" 
