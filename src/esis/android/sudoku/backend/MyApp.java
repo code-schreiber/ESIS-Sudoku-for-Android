@@ -2,6 +2,7 @@ package esis.android.sudoku.backend;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
+import java.util.Random;
 
 import android.app.Application;
 import android.util.Log;
@@ -87,6 +88,18 @@ public class MyApp extends Application {
 	            return 0;//Should not happen
 	    }
 	}
+	
+	/**
+	 * Randomises text for OK buttons.
+	 * @return the random text
+	 */
+	public static String getPositiveText() {
+		String[] all = {"OK", "ok", "Ok", "oK", "oki", "0K", "yeap", "yes", "yep", "ja", "da", "si", "positive", "go!"};
+		Random rand = new Random();
+		int i= rand.nextInt(all.length);
+		return all[i];
+	}
+
 
 
 }

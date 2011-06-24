@@ -2,9 +2,11 @@ package esis.android.sudoku.backend;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 
 import android.content.Context;
 import android.util.Log;
@@ -22,6 +24,13 @@ public class FileSystemTool {
     private final static int SIZE = BackendSudoku.SIZE;
     private static final String SUDOKU_SAVED_FILE = "saved_sudoku_game";
 
+	public static String getSavedGamesDate(Context c){
+    	 String path = c.getFilesDir()+File.separator+SUDOKU_SAVED_FILE;
+ 		 Date lastModified = new Date(new File(path).lastModified());
+		 String date = lastModified.toLocaleString();
+		 return date;    	 
+    }
+    
     public static void openFileToSave(Context context, long base, int difficulty, int tries) {
 		try {
 		    opendos(context);

@@ -42,6 +42,13 @@ public class Menu extends Activity{
         InitButtons();
         setListenerAndReloadDifficulty();
     }
+    
+    @Override
+	public void onBackPressed() {
+		if (MyApp.saved_game_exists)
+			startGameActivity();
+		super.onBackPressed();
+	}
 
 	private void setListenerAndReloadDifficulty() {
 		OnSharedPreferenceChangeListener li = new OnSharedPreferenceChangeListener() {
@@ -106,7 +113,7 @@ public class Menu extends Activity{
 		b = (Button) findViewById(R.id.ExitButton);
 		b.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
-			ExitGame();
+			exitApp();
 		    }
 		});
     }
@@ -118,26 +125,26 @@ public class Menu extends Activity{
 		    RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
 		    CharSequence difficulty = ((RadioButton) findViewById(rg.getCheckedRadioButtonId())).getText();
 		    Toast.makeText(v.getContext(), "Creating " + difficulty + " Sudoku", Toast.LENGTH_LONG).show();
-		    Intent intent = new Intent();
-		    intent.setClass(Menu.this, Game.class);
-		    Menu.this.startActivity(intent);
+		    startGameActivity();
 		}
     }
 
     private void loadgameButtonAction(View v) {
 	Log.d(TAG, "Loading Game");
 	if (MyApp.saved_game_exists) {
-	    Toast.makeText(v.getContext(), "Loading Game",
-		    Toast.LENGTH_LONG).show();
-	    Intent intent = new Intent();
+	    Toast.makeText(v.getContext(), "Loading Game", Toast.LENGTH_LONG).show();
+	    startGameActivity();
+	} else
+	    Toast.makeText(v.getContext(), R.string.no_game_to_load, Toast.LENGTH_SHORT).show();
+    }
+
+	private void startGameActivity() {
+		Intent intent = new Intent();
 	    intent.setClass(Menu.this, Game.class);
 	    Menu.this.startActivity(intent);
-	} else
-	    Toast.makeText(v.getContext(), R.string.no_game_to_load,
-		    Toast.LENGTH_SHORT).show();
-    }
+	}
 	
-    private void ExitGame(){
+    private void exitApp(){
 	    Log.d(TAG, "Exiting App");
 	    this.finish();
 	}	
@@ -152,7 +159,7 @@ public class Menu extends Activity{
                     .setIcon(R.drawable.icon)
                     .setTitle(b.getText())
                     .setMessage(ss)
-                    .setPositiveButton(getString(R.string.i_dont_care), new DialogInterface.OnClickListener() {
+                    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                         	//Just go away.
                         }
@@ -174,9 +181,10 @@ public class Menu extends Activity{
 	private void deleteSavedGameWarning(View v) {
 		final Button b = (Button) findViewById(R.id.NewGameButton);
 		final Button lb = (Button) findViewById(R.id.LoadGameButton);
+		final String date = FileSystemTool.getSavedGamesDate(this);
 		new AlertDialog.Builder(v.getContext())
-		    .setMessage("This will delete a previously saved game")
-		    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+		    .setMessage("This will delete a previously saved game\n("+date+")")
+		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		            /* User clicked OK so start new game and delete last saved file*/  
 		            FileSystemTool.deleteSavedFile(getApplicationContext());

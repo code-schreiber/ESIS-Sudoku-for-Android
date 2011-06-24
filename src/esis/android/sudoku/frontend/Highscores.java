@@ -97,7 +97,7 @@ public class Highscores extends Activity {
     private void showWarning(final View v) {
 		new AlertDialog.Builder(v.getContext())
 			.setMessage("All your hard work will be worth nothing")
-			.setPositiveButton("Yeap", //TODO idea make function that randomizes OK text button: OK ok Ok oK yeap yes yep ja da si positive go!
+			.setPositiveButton(MyApp.getPositiveText(),
 			new DialogInterface.OnClickListener() {
 			    public void onClick(DialogInterface dialog, int whichButton) {
 				Toast.makeText(v.getContext(), "Highscores Cleared", Toast.LENGTH_SHORT).show();

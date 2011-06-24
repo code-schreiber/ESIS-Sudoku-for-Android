@@ -54,12 +54,31 @@ public class Game extends Activity {
 		getRemovedNrs();
 		InitCellListeners();
 		NewGame();
+	}	
+
+	@Override
+	public void onBackPressed() {
+		tryToSaveGame(true);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if(findViewById(R.id.SudokuGridLayout).getVisibility() != View.VISIBLE)
+			PauseGame();
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		if(findViewById(R.id.SudokuGridLayout).getVisibility() == View.VISIBLE)
+			PauseGame();
+		super.onSaveInstanceState(outState);
+	}
+	
 	private void getRemovedNrs() {	   	
 	    removedNrs = BackendSudoku.getHowManyNumbersToRemove(getDifficulty());
 	}
-
+	
 	/**	Release focus when number is typed in (listener to all cells) */
 	private void InitCellListeners() {
 	    for (int row = 0; row < SIZE; ++row)
@@ -87,7 +106,6 @@ public class Game extends Activity {
 			backendsudoku.create_game(getDifficulty());
 			Log.d(TAG, "New Game Called with difficulty " + getDifficulty());
 			ResetGame();
-			triesCounter = 0;
 		}
 		((Button) findViewById(R.id.CheckButton)).setEnabled(true);
 		enableOrDisableHelpResetPause(true);
@@ -103,7 +121,6 @@ public class Game extends Activity {
 		boolean action;
 		final View sudokuGridLayout = findViewById(R.id.SudokuGridLayout);
 		Button button = (Button) findViewById(R.id.PauseButton);
-		
 		if (sudokuGridLayout.getVisibility() == View.VISIBLE) {
 			Log.d(TAG, "Pausing Game");
 			action = false;// pause
@@ -117,19 +134,18 @@ public class Game extends Activity {
 			button.setText("Pause");
 			sudokuGridLayout.setVisibility(View.VISIBLE);// VISIBLE
 		}
-
 		((Button) findViewById(R.id.CheckButton)).setEnabled(action);
 		((Button) findViewById(R.id.HelpButton)).setEnabled(action);
 		((Button) findViewById(R.id.ResetButton)).setEnabled(action);
-
 	}
 
 	private void ResetGame() {
 		copyGrid();
+		triesCounter = 0;
 		((MyChronometer) findViewById(R.id.chronometer)).reset();
 	}
 
-	private void HelpGame() {
+	private void help() {
 		if (sudokuIsComplete()) {
 			Toast.makeText(this, R.string.no_help_needed, Toast.LENGTH_SHORT).show();
 			return;
@@ -146,12 +162,13 @@ public class Game extends Activity {
 			if (guiText.getText().toString().equals("")) {
 				guiText.requestFocus();
 				guiText.setText(Integer.toString(backendsudoku.solved_grid[row][column]));
+				((Button) findViewById(R.id.HelpButton)).requestFocus();
 				return;
 			}
 		}
 	}
 
-	private void saveGame() {
+	private void saveGame() {		
 		Toast.makeText(this, R.string.saving_game, Toast.LENGTH_SHORT).show();
 		//Open file
 		long base = ((MyChronometer) findViewById(R.id.chronometer)).getBase();
@@ -237,7 +254,7 @@ public class Game extends Activity {
 		button.setEnabled(false);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				HelpGame();
+				help();
 			}
 		});
 		button = (Button) findViewById(R.id.ResetButton);
@@ -257,7 +274,7 @@ public class Game extends Activity {
 		button = (Button) findViewById(R.id.SaveButton);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				saveGame();
+				tryToSaveGame(false);
 			}
 		});
 	}
@@ -282,7 +299,6 @@ public class Game extends Activity {
 		gT.setTextColor(getResources().getColor(R.color.solid_black));
 	}
 	
-
 	private void setGivenCell(EditText gT, int backendCellNumber) {
 		gT.setText(Integer.toString(backendCellNumber));
 		gT.setEnabled(false);
@@ -390,11 +406,10 @@ public class Game extends Activity {
 	    	.setIcon(R.drawable.icon)
 	    	.setTitle(R.string.Won_Title)
 	    	.setMessage(R.string.Won_Mesage)
-	    	.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+	    	.setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 	    	    public void onClick(DialogInterface dialog, int whichButton) {
 	    		/* User clicked OK so do some stuff */
 	    		NewGame();
-	    		//TODO delete saved file
 	    	    }
 	    	}).setNegativeButton("Menu", new DialogInterface.OnClickListener() {
 	    		    public void onClick(DialogInterface dialog,
@@ -405,25 +420,25 @@ public class Game extends Activity {
 	    	}).create().show();
 	}
 
-        private void saveHighscore(String newTime) {
-        	MyApp ma = (MyApp) getApplication();
-        	String difName = ma.getDifficultyString(getDifficulty());
-        
-        	SharedPreferences sp = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_WRITEABLE);
-        	String oldHscore = sp.getString(difName, Highscores.defValue);
-        	Log.d(TAG, "saving highscore with diff " + difName + " and time "
-        		+ newTime + " and old hs " + oldHscore);
-        
-        	/* Save the time if its was faster than old highscore. */
-        	if (oldHscore.equals(Highscores.defValue))
-        	    setNewHighscore(difName, newTime, sp);
-        	else {
-        	    String newinInt = newTime.replace(":", "");
-        	    String oldinInt = oldHscore.replace(":", "");
-        	    if (Integer.parseInt(newinInt) < Integer.parseInt(oldinInt))
-        		setNewHighscore(difName, newTime, sp);
-        	}
-        }
+    private void saveHighscore(String newTime) {
+    	MyApp ma = (MyApp) getApplication();
+    	String difName = ma.getDifficultyString(getDifficulty());
+    
+    	SharedPreferences sp = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_WRITEABLE);
+    	String oldHscore = sp.getString(difName, Highscores.defValue);
+    	Log.d(TAG, "saving highscore with diff " + difName + " and time "
+    		+ newTime + " and old hs " + oldHscore);
+    
+    	/* Save the time if its was faster than old highscore. */
+    	if (oldHscore.equals(Highscores.defValue))
+    	    setNewHighscore(difName, newTime, sp);
+    	else {
+    	    String newinInt = newTime.replace(":", "");
+    	    String oldinInt = oldHscore.replace(":", "");
+    	    if (Integer.parseInt(newinInt) < Integer.parseInt(oldinInt))
+    		setNewHighscore(difName, newTime, sp);
+    	}
+    }
 
 	private void setNewHighscore(String difficulty, String time, SharedPreferences settings) {
 		Toast.makeText(this, "Highscore in " + difficulty, Toast.LENGTH_LONG).show();
@@ -439,13 +454,47 @@ public class Game extends Activity {
 			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(guiText.getWindowToken(), 0);
 			triesCounter++;
-			if (triesCounter >= removedNrs-10)//-10 because sometimes not so many were removed, fix this sometime
+			if (triesCounter >= removedNrs-20)//FIXME -20 because sometimes not so many were removed, fix this.
 				checkIfWon();	
 		}
 		else
 			triesCounter--;
 		Log.d(TAG, "tried "+triesCounter+" times from "+removedNrs);
 	}
+	
+	private void askForOverwrittingPermission(final boolean saveAndQuit) {
+		String date = FileSystemTool.getSavedGamesDate(this);
+		new AlertDialog.Builder(this)
+		    .setMessage("Do you want to save this game " +
+		    		"and delete a previously saved game\n("+date+")?")
+		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		        	saveGame();
+		        	if(saveAndQuit)
+		        		exitGame();
+		        }
+		    })
+		    .setNegativeButton("No!", new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int whichButton) {
+		        	if(saveAndQuit)
+		        		exitGame();
+		        }
+		    }).create().show();
+	}
 
+	private void tryToSaveGame(boolean saveAndQuit) {
+		if (MyApp.saved_game_exists)
+			askForOverwrittingPermission(saveAndQuit);			
+		else{
+			saveGame();
+        	if(saveAndQuit)
+        		exitGame();
+		}
+	}
+	
+    private void exitGame(){
+	    Log.d(TAG, "Exiting Game");
+	    this.finish();
+	}	
 
 }
