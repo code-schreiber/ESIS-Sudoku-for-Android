@@ -30,6 +30,7 @@ import esis.android.sudoku.backend.MyApp;
 import esis.android.sudoku.backend.MyChronometer;
 
 /**
+ * The class Game
  * @author Sebastian Guillen
  * TODO 's: 
  * Sign for 12 years (2033)

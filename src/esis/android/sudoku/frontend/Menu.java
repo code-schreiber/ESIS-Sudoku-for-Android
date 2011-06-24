@@ -22,6 +22,7 @@ import esis.android.sudoku.R;
 import esis.android.sudoku.backend.MyApp;
 
 /**
+ * The class Menu
  * @author Sebastian Guillen
  * 
  */

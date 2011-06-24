@@ -27,7 +27,7 @@ public class MyApp extends Application {
 		
 	/* Shared Preferences */
 	public static final String HIGHSCORES = "sudoku_highscores";
-	public static final String PREFERED_DIFFICULTY = "preffered_difficulty";//TODO get rid of MyApp.difficulty 
+	public static final String PREFERED_DIFFICULTY = "preffered_difficulty";
 
 	/**
 	 * Gets the difficulty from the given id.

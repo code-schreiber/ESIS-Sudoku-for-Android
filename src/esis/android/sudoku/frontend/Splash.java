@@ -30,7 +30,7 @@ public class Splash extends Activity{
         
     	final RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
         final boolean _active = true;
-        final int _splashTime = 0*1000;        
+        final int _splashTime = 1*1000;        
         
     	setLayoutListener(splashLayout);
     	checkForSavedGame();
