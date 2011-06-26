@@ -76,7 +76,7 @@ public class Game extends Activity {
 	}
 	
 	private void getRemovedNrs() {	   	
-	    removedNrs = BackendSudoku.getHowManyNumbersToRemove(getDifficulty());
+	    removedNrs = backendsudoku.quantityRemoved;
 	}
 	
 	/**	Release focus when number is typed in (listener to all cells) */

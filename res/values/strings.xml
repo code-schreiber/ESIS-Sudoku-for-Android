@@ -10,6 +10,7 @@
 	<string name="app_name">ESISudoku</string>
 	<string name="app_email">sebasguillen@gmail.com</string>		
 	<string name="i_dont_care">Good to know</string>
+	<string name="splash_text"><b>ESISudoku is loading...</b></string>
 
 	<!-- =============================== -->
 	<!--    Activity Specific strings    -->
