@@ -56,7 +56,6 @@ public class Game extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
 		InitButtons();
-		getRemovedNrs();
 		InitCellListeners();
 		NewGame();
 	}	
@@ -78,10 +77,6 @@ public class Game extends Activity {
 		if(findViewById(R.id.SudokuGridLayout).getVisibility() == View.VISIBLE)
 			PauseGame();
 		super.onSaveInstanceState(outState);
-	}
-	
-	private void getRemovedNrs() {	   	
-	    removedNrs = backendsudoku.quantityRemoved;
 	}
 	
 	/**	Release focus when number is typed in (listener to all cells) */
@@ -109,6 +104,7 @@ public class Game extends Activity {
 			loadGame();// copy user grid to GUI
 		} else {
 			backendsudoku.create_game(getDifficulty());
+		    removedNrs = backendsudoku.quantityRemoved;
 			Log.d(TAG, "New Game Called with difficulty " + getDifficulty());
 			ResetGame();
 		}
@@ -438,10 +434,11 @@ public class Game extends Activity {
     	if (oldHscore.equals(Highscores.defValue))
     	    setNewHighscore(difName, newTime, sp);
     	else {
-    		DateFormat dateFormat = new SimpleDateFormat(getString(R.string.preferred_date_format));
-    	    
     		String newinInt = newTime.replace(":", "");
-    	    String oldinInt = oldHscore.replace(":", "");
+    		int start = 5;//where to start deleting date
+    		if(oldHscore.length() > 17)
+    			start += 3;//3 char: ":HH"
+    	    String oldinInt = oldHscore.replace(oldHscore.substring(start),"").replace(":", "");
     	    if (Integer.parseInt(newinInt) < Integer.parseInt(oldinInt))
     		setNewHighscore(difName, newTime, sp);
     	}
@@ -449,7 +446,7 @@ public class Game extends Activity {
 
 	private void setNewHighscore(String difficulty, String time, SharedPreferences settings) {
 		Toast.makeText(this, "Highscore in " + difficulty, Toast.LENGTH_LONG).show();
-	    DateFormat dateFormat = new SimpleDateFormat(" "+getString(R.string.preferred_date_format));
+	    DateFormat dateFormat = new SimpleDateFormat(" - "+getString(R.string.preferred_date_format));
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(difficulty, time + dateFormat.format(new Date()));
 	        if(!editor.commit())
@@ -474,7 +471,7 @@ public class Game extends Activity {
 		String date = FileSystemTool.getSavedGamesDate(this);
 		new AlertDialog.Builder(this)
 		    .setMessage("Do you want to save this game " +
-		    		"and delete a previously saved game\n("+date+")?")
+		    		"and delete a previously saved game ("+date+")?")
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		        	saveGame();

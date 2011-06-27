@@ -33,7 +33,7 @@ public class Eula {
   private static final String PREFERENCE_EULA_ACCEPTED = "eula.accepted";
   private static final String PREFERENCES_EULA = "eula";
 
-  private Eula() {}
+  public Eula() {}
 
   /**
    * Displays the EULA if necessary. This method should be called from the

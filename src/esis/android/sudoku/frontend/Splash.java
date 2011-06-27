@@ -74,7 +74,7 @@ public class Splash extends Activity{
 			alreadyStarted = true;//so this isn't called again
 			finish();
 			Intent intent = new Intent();
-			intent.setClass(Splash.this, Eula.class);		    	
+			intent.setClass(Splash.this, Menu.class);		    	
 			Splash.this.startActivity(intent);
 		}
 	}
