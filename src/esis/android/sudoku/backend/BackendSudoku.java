@@ -46,6 +46,7 @@ public class BackendSudoku {
 	}
 	
 	Zellen[] pZellen;
+	public int quantityRemoved = 0;
 
 	public BackendSudoku() {
 
@@ -131,37 +132,41 @@ public class BackendSudoku {
 				pZellen[elem].setSpalte(j);
 				++elem;
 			}
-
-		while (countEmptyCells() < quantityToRemove) {
-			if (elem <= 0)// abbrechen wenn keine moeglichkeiten mehr zur verfuegung stehen
-			    break;
-			random_coordinate = (rand.nextInt(elem));
-
-			backup1 = unsolved_grid[pZellen[random_coordinate].zeile][pZellen[random_coordinate].spalte];
-			backup2 = unsolved_grid[(SIZE - 1) - pZellen[random_coordinate].zeile][(SIZE - 1) - pZellen[random_coordinate].spalte];
-
-			unsolved_grid[pZellen[random_coordinate].zeile][pZellen[random_coordinate].spalte] = 0;
-			unsolved_grid[(SIZE - 1) - pZellen[random_coordinate].zeile][(SIZE - 1) - pZellen[random_coordinate].spalte] = 0;
-
-			// Wenn nicht eindeutig loesbar, zahlen wiederherstellen
-			if (!checkUnique(unsolved_grid)) {
-				unsolved_grid[pZellen[random_coordinate].zeile][pZellen[random_coordinate].spalte] = backup1;
-				unsolved_grid[(SIZE - 1) - pZellen[random_coordinate].zeile][(SIZE - 1)	- pZellen[random_coordinate].spalte] = backup2;
-			}
-
-			// Gepruefte Zellen aus pZellen-Feld entfernen			
-			for (int i = random_coordinate; i < elem-1; ++i)//elem-1 sonst krachs
-				pZellen[i] = pZellen[i + 1];
-			elem--;
-			if (pZellen[elem - random_coordinate].zeile != 4 && pZellen[elem - random_coordinate].spalte != 4) {
-				for (int i = (elem - random_coordinate); i < elem; ++i)
-					pZellen[i] = pZellen[i + 1];
-				elem--;
-			}
-		}
+		quantityRemoved = removeCells(quantityToRemove);
 	}
 
-	public static int getHowManyNumbersToRemove(int difficulty) {
+	private int removeCells(int quantityToRemove) {
+	    while (countEmptyCells() < quantityToRemove) {
+	    	if (elem <= 0)// abbrechen wenn keine moeglichkeiten mehr zur verfuegung stehen
+	    	    break;
+	    	random_coordinate = (rand.nextInt(elem));
+
+	    	backup1 = unsolved_grid[pZellen[random_coordinate].zeile][pZellen[random_coordinate].spalte];
+	    	backup2 = unsolved_grid[(SIZE - 1) - pZellen[random_coordinate].zeile][(SIZE - 1) - pZellen[random_coordinate].spalte];
+
+	    	unsolved_grid[pZellen[random_coordinate].zeile][pZellen[random_coordinate].spalte] = 0;
+	    	unsolved_grid[(SIZE - 1) - pZellen[random_coordinate].zeile][(SIZE - 1) - pZellen[random_coordinate].spalte] = 0;
+
+	    	// Wenn nicht eindeutig loesbar, zahlen wiederherstellen
+	    	if (!checkUnique(unsolved_grid)) {
+	    		unsolved_grid[pZellen[random_coordinate].zeile][pZellen[random_coordinate].spalte] = backup1;
+	    		unsolved_grid[(SIZE - 1) - pZellen[random_coordinate].zeile][(SIZE - 1)	- pZellen[random_coordinate].spalte] = backup2;
+	    	}
+
+	    	// Gepruefte Zellen aus pZellen-Feld entfernen			
+	    	for (int i = random_coordinate; i < elem-1; ++i)//elem-1 sonst krachs
+	    		pZellen[i] = pZellen[i + 1];
+	    	elem--;
+	    	if (pZellen[elem - random_coordinate].zeile != 4 && pZellen[elem - random_coordinate].spalte != 4) {
+	    		for (int i = (elem - random_coordinate); i < elem; ++i)
+	    			pZellen[i] = pZellen[i + 1];
+	    		elem--;
+	    	}
+	    }
+	    return countEmptyCells();
+	}
+
+	private static int getHowManyNumbersToRemove(int difficulty) {
 		int quantityToRemove = 0;
 		if (difficulty == MyApp.EASY)
 		    quantityToRemove = REMOVE_FEW;
@@ -173,9 +178,7 @@ public class BackendSudoku {
 	}
 
 	private int countEmptyCells() {
-
 		int emptyCells = 0;
-
 		for (int i = 0; i < SIZE; i++)
 			for (int j = 0; j < SIZE; j++)
 				if (unsolved_grid[i][j] == 0)
