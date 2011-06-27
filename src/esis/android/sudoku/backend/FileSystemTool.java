@@ -1,11 +1,15 @@
 package esis.android.sudoku.backend;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.content.Context;
@@ -26,8 +30,9 @@ public class FileSystemTool {
 
 	public static String getSavedGamesDate(Context c){
     	 String path = c.getFilesDir()+File.separator+SUDOKU_SAVED_FILE;
+ 	     DateFormat dateFormat = new SimpleDateFormat(c.getString(R.string.preferred_date_format));
  		 Date lastModified = new Date(new File(path).lastModified());
-		 String date = lastModified.toLocaleString();
+		 String date = dateFormat.format(lastModified);
 		 return date;    	 
     }
     
@@ -133,5 +138,29 @@ public class FileSystemTool {
         MyApp.saved_game_exists = false;
     	c.deleteFile(FileSystemTool.SUDOKU_SAVED_FILE);
     }
+    
+    public static CharSequence readFile(Context c, int id) {
+        BufferedReader in = null;
+        try {
+          in = new BufferedReader(new InputStreamReader(
+              c.getResources().openRawResource(id)));
+          String line;
+          StringBuilder buffer = new StringBuilder();
+          while ((line = in.readLine()) != null) {
+            buffer.append(line).append('\n');
+          }
+          return buffer;
+        } catch (IOException e) {
+          return "";
+        } finally {
+          if (in != null) {
+            try {
+              in.close();
+            } catch (IOException e) {
+              /* Just Ignore */
+            }
+          }
+        }
+      }
     
 }

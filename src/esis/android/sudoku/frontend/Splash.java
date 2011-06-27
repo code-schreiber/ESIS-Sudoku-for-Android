@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import esis.android.sudoku.R;
+import esis.android.sudoku.backend.Eula;
 import esis.android.sudoku.backend.FileSystemTool;
 import esis.android.sudoku.backend.MyApp;
 
@@ -73,7 +74,7 @@ public class Splash extends Activity{
 			alreadyStarted = true;//so this isn't called again
 			finish();
 			Intent intent = new Intent();
-			intent.setClass(Splash.this, Menu.class);		    	
+			intent.setClass(Splash.this, Eula.class);		    	
 			Splash.this.startActivity(intent);
 		}
 	}

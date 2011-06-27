@@ -2,6 +2,9 @@ package esis.android.sudoku.frontend;
 
 
 import java.io.DataInputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 import android.R.color;
@@ -34,7 +37,9 @@ import esis.android.sudoku.backend.MyChronometer;
  * @author Sebastian Guillen
  * TODO 's: 
  * Sign for 12 years (2033)
+ * Your application must be signed with a cryptographic private key whose validity period ends after 22 October 2033.
  * make settings with view
+ * sudoku grid 3*3! 
  */
 
 public class Game extends Activity {
@@ -76,7 +81,7 @@ public class Game extends Activity {
 	}
 	
 	private void getRemovedNrs() {	   	
-	    removedNrs = BackendSudoku.getHowManyNumbersToRemove(getDifficulty());
+	    removedNrs = backendsudoku.quantityRemoved;
 	}
 	
 	/**	Release focus when number is typed in (listener to all cells) */
@@ -433,7 +438,9 @@ public class Game extends Activity {
     	if (oldHscore.equals(Highscores.defValue))
     	    setNewHighscore(difName, newTime, sp);
     	else {
-    	    String newinInt = newTime.replace(":", "");
+    		DateFormat dateFormat = new SimpleDateFormat(getString(R.string.preferred_date_format));
+    	    
+    		String newinInt = newTime.replace(":", "");
     	    String oldinInt = oldHscore.replace(":", "");
     	    if (Integer.parseInt(newinInt) < Integer.parseInt(oldinInt))
     		setNewHighscore(difName, newTime, sp);
@@ -442,10 +449,11 @@ public class Game extends Activity {
 
 	private void setNewHighscore(String difficulty, String time, SharedPreferences settings) {
 		Toast.makeText(this, "Highscore in " + difficulty, Toast.LENGTH_LONG).show();
+	    DateFormat dateFormat = new SimpleDateFormat(" "+getString(R.string.preferred_date_format));
 		SharedPreferences.Editor editor = settings.edit();
-		editor.putString(difficulty, time);
-                if(!editor.commit())
-            		Log.e(TAG, "Couldn't set new highscore");
+		editor.putString(difficulty, time + dateFormat.format(new Date()));
+	        if(!editor.commit())
+	    		Log.e(TAG, "Couldn't set new highscore");
 	}
 
 	private void guiTextChanged(final EditText guiText) {

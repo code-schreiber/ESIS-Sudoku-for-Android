@@ -10,6 +10,8 @@
 	<string name="app_name">ESISudoku</string>
 	<string name="app_email">sebasguillen@gmail.com</string>		
 	<string name="i_dont_care">Good to know</string>
+	<string name="eula_title">End User Agreement</string>
+	<string name="splash_text"><b>ESISudoku is loading...</b></string>
 
 	<!-- =============================== -->
 	<!--    Activity Specific strings    -->
@@ -52,6 +54,8 @@
 	<string name="Highscores"><b>Highscores</b></string>
 	
 	<string name="Highscore_format">%1$s :  %2$s</string>
+	
+	<string name="preferred_date_format">dd.MM.yy</string>
 
 
 </resources>
