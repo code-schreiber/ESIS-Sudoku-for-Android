@@ -25,6 +25,9 @@
 	          android:layout_marginBottom="10dip"
 	          android:layout_marginTop="10dip"/>
 	
+		  <View android:layout_height="2dip" 
+		  android:background="@color/solid_grey" android:layout_width="fill_parent"/>
+		  
 	      <TextView
 	      	  android:id="@+id/Highscore_easy_view"
 	          android:format="@string/Highscore_format"
@@ -32,9 +35,8 @@
 	          android:layout_width="match_parent"
 	          android:textColor="@color/solid_white"
 	          android:layout_height="wrap_content" 
-	          android:textSize="30dip" 
 	          android:layout_marginBottom="3dip" 
-	          android:paddingLeft="4dip"/>
+	          android:paddingLeft="4dip" android:textSize="26dip" android:layout_marginTop="3dip"/>
 	          
 	      <TextView
 	          android:id="@+id/Highscore_medium_view"
@@ -42,7 +44,7 @@
 	          android:background="@drawable/green"
 	          android:layout_width="match_parent"
 	          android:textColor="@color/solid_white"
-	          android:layout_height="wrap_content" android:textSize="30dip" android:layout_marginBottom="3dip" android:paddingLeft="4dip"/>
+	          android:layout_height="wrap_content" android:layout_marginBottom="3dip" android:paddingLeft="4dip" android:textSize="26dip"/>
 	          
 	      <TextView
 	          android:id="@+id/Highscore_hard_view"
@@ -50,7 +52,7 @@
 	          android:background="@drawable/red"
 	          android:layout_width="match_parent"
 	          android:textColor="@color/solid_white"
-	          android:layout_height="wrap_content" android:textSize="30dip" android:layout_marginBottom="3dip" android:paddingLeft="4dip"/>
+	          android:layout_height="wrap_content" android:layout_marginBottom="3dip" android:paddingLeft="4dip" android:textSize="26dip"/>
 	
 	    </LinearLayout>
 	
@@ -74,7 +76,7 @@
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" 
 		android:text="@string/DevelopedBy"
-		android:layout_alignParentBottom="true">
+		android:layout_alignParentBottom="true" android:paddingLeft="5dip">
 	</TextView>
 
 </RelativeLayout>

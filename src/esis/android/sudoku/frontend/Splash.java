@@ -25,20 +25,25 @@ public class Splash extends Activity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
         
     	RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
         final boolean _active = true;
-        final int _splashTime = 1*1000;        
+        final int _splashTime = 5*1000;        
         
     	setLayoutListener(splashLayout);
     	checkForSavedGame();
-        // thread for displaying the SplashScreen
         launchThread(_active, _splashTime);
     }
+    
+	@Override
+	public void onBackPressed() {
+		alreadyStarted = true;
+		super.onBackPressed();
+	}
 
+	/* thread for displaying the SplashScreen */
     private void launchThread(final boolean _active, final int _splashTime) {
 	Thread splashTread = new Thread() {
             @Override
@@ -74,7 +79,7 @@ public class Splash extends Activity{
 			alreadyStarted = true;//so this isn't called again
 			finish();
 			Intent intent = new Intent();
-			intent.setClass(Splash.this, Menu.class);		    	
+			intent.setClass(Splash.this, Menu.class);
 			Splash.this.startActivity(intent);
 		}
 	}

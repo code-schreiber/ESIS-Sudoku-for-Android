@@ -30,7 +30,7 @@
 			android:layout_height="wrap_content" 
 			android:layout_width="fill_parent" 
 			android:text="@string/DevelopedBy" 
-			android:layout_alignBottom="@+id/MenuLayout">
+			android:layout_alignBottom="@+id/MenuLayout" android:paddingLeft="5dip">
 		</TextView>
 	</TableLayout>
 

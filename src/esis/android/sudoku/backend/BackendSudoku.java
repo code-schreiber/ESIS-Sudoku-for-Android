@@ -2,6 +2,8 @@ package esis.android.sudoku.backend;
 
 import java.util.Random;
 
+import android.util.Log;
+
 /**
  * @author Sergej Thomas
  * @author Sebastian Guillen
@@ -133,6 +135,7 @@ public class BackendSudoku {
 				++elem;
 			}
 		quantityRemoved = removeCells(quantityToRemove);
+		Log.d(TAG, "Removed " + quantityRemoved + " numbers from " + quantityToRemove + " planned.");
 	}
 
 	private int removeCells(int quantityToRemove) {

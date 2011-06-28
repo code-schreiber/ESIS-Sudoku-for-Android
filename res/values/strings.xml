@@ -19,8 +19,9 @@
 	
 	<!--    Splash Activity    -->
 	
-	<string name="splash_text"><b>ESISudoku\nis loading</b></string>
-	
+	<string name="splash_text"><b>ESISudoku</b></string>
+	<string name="splash_subtext"><b>a sudoku game</b></string>
+		
 	<!--    Game Activity     -->
 
 	<string name="Won_Title">Congrats, You Won!</string>
@@ -32,7 +33,7 @@
 
 	<string name="saving_game">Saving Game</string>
 
-	<string name="keepPlayingText">Almost done!!! \nYour sudoku has still some errors!</string>
+	<string name="keepPlayingText">Almost done: Your sudoku has still some errors</string>
 
 	<string name="no_help_needed">Your Sudoku is full</string>
 
@@ -44,7 +45,7 @@
 	<string name="Hard">Hard</string>
 
 	<string-array name="Feedback_Message">
-		<item>Any comments or ideas are welcome.\nIf you want to share some piece of mind please send an Email to\n</item>
+		<item>Any comments or ideas are welcome. If you want to share some piece of mind please send an Email to </item>
 		<item>@string/app_email</item>
 		<item>.\nWe would really apreciate it.</item>
 	</string-array>

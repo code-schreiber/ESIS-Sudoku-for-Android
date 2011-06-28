@@ -16,7 +16,7 @@ import esis.android.sudoku.backend.MyApp;
 
 /**
  * @author Sebastian Guillen
- * TODO idea: put date on highscores
+ * 
  */
 
 public class Highscores extends Activity {

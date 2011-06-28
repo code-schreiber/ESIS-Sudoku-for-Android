@@ -36,10 +36,9 @@ import esis.android.sudoku.backend.MyChronometer;
  * The class Game
  * @author Sebastian Guillen
  * TODO 's: 
- * Sign for 12 years (2033)
+ * Sign for 22 years (2033)
  * Your application must be signed with a cryptographic private key whose validity period ends after 22 October 2033.
- * make settings with view
- * sudoku grid 3*3! 
+ * bug when winning toast: you have errors
  */
 
 public class Game extends Activity {
@@ -83,7 +82,7 @@ public class Game extends Activity {
 	private void InitCellListeners() {
 	    for (int row = 0; row < SIZE; ++row)
 	    	for (int column = 0; column < SIZE; ++column){
-	    	    final EditText guiText = (EditText) findViewById(getEditTextId(row, column));		
+	    	    final EditText guiText = (EditText) findViewById(getEditTextId(row, column));
 	    	    guiText.addTextChangedListener(new TextWatcher() {
 			        public void afterTextChanged(Editable s) {
 			        	guiTextChanged(guiText);
@@ -110,6 +109,41 @@ public class Game extends Activity {
 		}
 		((Button) findViewById(R.id.CheckButton)).setEnabled(true);
 		enableOrDisableHelpResetPause(true);
+		((MyChronometer) findViewById(R.id.chronometer)).start();
+	}
+
+	private void saveGame() {		
+		Toast.makeText(this, R.string.saving_game, Toast.LENGTH_SHORT).show();
+		//Open file
+		long base = ((MyChronometer) findViewById(R.id.chronometer)).getBase();
+		FileSystemTool.openFileToSave(getApplicationContext(), base, getDifficulty(), triesCounter, removedNrs);
+		int[][] guiCells = new int[SIZE][SIZE];
+		copyGuiCellsToArray(guiCells);
+		FileSystemTool.writeGameToFile(backendsudoku.solved_grid, backendsudoku.unsolved_grid, guiCells);
+	}
+
+	private void loadGame() {
+		int[][] user_entered_numbers = new int[SIZE][SIZE];
+	
+		DataInputStream dis = null;
+		dis = FileSystemTool.openFileToLoad(getApplicationContext());
+		int loadedDifficulty = FileSystemTool.readBytes(dis);
+		loadDifficulty(loadedDifficulty);
+		long savedTime = FileSystemTool.getsavedTime(dis);
+		int tempTries = FileSystemTool.readBytes(dis);
+		//Load the deleted numbers
+		removedNrs = FileSystemTool.readBytes(dis);
+		loadData(dis, user_entered_numbers);
+		FileSystemTool.closeFis(dis);
+	
+		// write the unsolved grid in the GUI
+		copyGrid();		
+		// write user entered numbers in the GUI
+		copyUserNumbersToGui(user_entered_numbers);	
+		//Load the tries after they were affected in copy
+		triesCounter = tempTries;
+		//Start Chronometer from saved time
+		((MyChronometer) findViewById(R.id.chronometer)).setBase(savedTime);
 		((MyChronometer) findViewById(R.id.chronometer)).start();
 	}
 
@@ -147,16 +181,21 @@ public class Game extends Activity {
 	}
 
 	private void help() {
-		if (sudokuIsComplete()) {
+		if (sudokuIsComplete())
 			Toast.makeText(this, R.string.no_help_needed, Toast.LENGTH_SHORT).show();
-			return;
-		}
-		// Look for an empty place, a better implementation would know which
-		// places are empty, and would take one randomly
+		else
+			showOneSolutionNumber();
+	}
+	
+	/**		 
+	 * Look for an empty place, a better implementation would know which 
+	 * places are empty, and would take one randomly
+	 */
+	private void showOneSolutionNumber() {
 		Random rand = new Random();
 		int row;
 		int column;
-		while (true) {
+		while (true) {//danger of infinite loop
 			row = rand.nextInt(SIZE);
 			column = rand.nextInt(SIZE);
 			EditText guiText = (EditText) findViewById(getEditTextId(row, column));
@@ -169,16 +208,6 @@ public class Game extends Activity {
 		}
 	}
 
-	private void saveGame() {		
-		Toast.makeText(this, R.string.saving_game, Toast.LENGTH_SHORT).show();
-		//Open file
-		long base = ((MyChronometer) findViewById(R.id.chronometer)).getBase();
-		FileSystemTool.openFileToSave(getApplicationContext(), base, getDifficulty(), triesCounter);
-		int[][] guiCells = new int[SIZE][SIZE];
-		copyGuiCellsToArray(guiCells);
-		FileSystemTool.writeGameToFile(backendsudoku.solved_grid, backendsudoku.unsolved_grid, guiCells);
-	}
-
 	private void copyGuiCellsToArray(int[][] guiCells) {
 	    for (int row = 0; row < SIZE; ++row)
 	    	for (int column = 0; column < SIZE; ++column){
@@ -188,29 +217,6 @@ public class Game extends Activity {
 	    	    else
 	    		guiCells[row][column] = 0;
 	    	}
-	}
-
-	private void loadGame() {
-		int[][] user_entered_numbers = new int[SIZE][SIZE];
-
-		DataInputStream dis = null;
-		dis = FileSystemTool.openFileToLoad(getApplicationContext());
-		int loadedDifficulty = FileSystemTool.readBytes(dis);
-		loadDifficulty(loadedDifficulty);
-		long savedTime = FileSystemTool.getsavedTime(dis);
-		int loadedTries = FileSystemTool.readBytes(dis);
-		loadData(dis, user_entered_numbers);
-		FileSystemTool.closeFis(dis);
-
-		// write the unsolved grid in the GUI
-		copyGrid();		
-		// write user entered numbers in the GUI
-		copyUserNumbersToGui(user_entered_numbers);	
-		//Load the tries after they were affected in copy
-		triesCounter = loadedTries;
-		//Start Chronometer from saved time
-		((MyChronometer) findViewById(R.id.chronometer)).setBase(savedTime);
-		((MyChronometer) findViewById(R.id.chronometer)).start();
 	}
 
 	private void loadDifficulty(int loadedDifficulty) {	    
@@ -309,8 +315,25 @@ public class Game extends Activity {
 
 	private int getEditTextId(int row, int column) {
 		TableLayout tl = (TableLayout) findViewById(R.id.SudokuGridLayout);
+		row = evadeGuiLines(row);
+		column = evadeGuiLines(column);
 		return ((TableRow) tl.getChildAt(row)).getChildAt(column).getId();
 	}
+	
+	/**
+	 * This makes sure we don't return the dividing gui lines.
+	 * It is supposed to be called only from getEditTextId().
+	 * @param position
+	 * @return the right position
+	 */
+	int evadeGuiLines(int position) {
+		if (position > 5)
+			position +=2;
+		else if (position > 2)
+			position++;
+		return position;
+	}
+
 
 	private void CheckGrid() {
 		boolean checking = false;// Unchecking
@@ -340,20 +363,20 @@ public class Game extends Activity {
 		enableOrDisableHelpResetPause(!action);
 		((Button) findViewById(R.id.SaveButton)).setEnabled(!action);
 
-		noName(action);
+		checkUserCells(action);
 	}
 
-	private void noName(boolean action) {//Fixme rename FIXME
+	private void checkUserCells(boolean action) {
 	    for (int row = 0; row < SIZE; ++row)
 	        for (int column = 0; column < SIZE; ++column) {
-	    	EditText guiText = (EditText) findViewById(getEditTextId(row, column));
+	        	EditText guiText = (EditText) findViewById(getEditTextId(row, column));
 	    		if (guiText.isFocusable()) {// if it is a user cell
 	    		    guiText.setEnabled(!action);
 	    		    if (!guiText.getText().toString().equals("")) {
-	    			if (!action)
-	    			    guiText.setTextColor(getResources().getColor(R.color.solid_black));
-	    			else
-	    			    markMistakes(guiText, row, column);
+		    			if (!action)
+		    			    guiText.setTextColor(getResources().getColor(R.color.solid_black));
+		    			else
+		    			    markMistakes(guiText, row, column);
 	    		    }
 	    		}
 	        }
@@ -395,6 +418,7 @@ public class Game extends Activity {
 	}
 
 	private void gameWon() {
+		Log.d(TAG, "Game Won");
 		MyChronometer c = ((MyChronometer) findViewById(R.id.chronometer));
 		c.stop();
 		check(false);// uncheck the game in background
@@ -459,8 +483,8 @@ public class Game extends Activity {
 			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(guiText.getWindowToken(), 0);
 			triesCounter++;
-			if (triesCounter >= removedNrs-20)//FIXME -20 because sometimes not so many were removed, fix this.
-				checkIfWon();	
+			if (triesCounter >= removedNrs)
+				checkIfWon();
 		}
 		else
 			triesCounter--;

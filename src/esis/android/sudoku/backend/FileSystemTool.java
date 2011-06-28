@@ -36,16 +36,18 @@ public class FileSystemTool {
 		 return date;    	 
     }
     
-    public static void openFileToSave(Context context, long base, int difficulty, int tries) {
+    public static void openFileToSave(Context context, long base, int difficulty, int tries, int removedNrs) {
 		try {
 		    opendos(context);
 		    //Save Difficulty
 		    MyApp.dos.writeByte(difficulty);
 		    // Save Chronometer's time
-		    Log.d(TAG, "saving time: "+base+"-"+System.currentTimeMillis()+"="+ (base - System.currentTimeMillis()));// FIXME delete
+		    Log.d(TAG, "saving time: "+base+"-"+System.currentTimeMillis()+"="+ (base - System.currentTimeMillis()));
 		    MyApp.dos.writeLong(base - System.currentTimeMillis());
 		    Log.d(TAG, "saving tries: "+tries);
 		    MyApp.dos.writeByte(tries);
+		    Log.d(TAG, "saving removed numbers: "+removedNrs);
+		    MyApp.dos.writeByte(removedNrs);
 		    // set flag to load this saved game the next time a game starts
 		    MyApp.saved_game_exists = true;
 		} catch (FileNotFoundException e) {
@@ -111,7 +113,7 @@ public class FileSystemTool {
 		    } catch (IOException e) {
 		    	Log.e(TAG, e.getMessage());
 		    }
-		Log.d(TAG, "Saved time: " + savedTime);// FIXME delete
+		Log.d(TAG, "Saved time: " + savedTime);
 		return savedTime + System.currentTimeMillis();
     }
 
