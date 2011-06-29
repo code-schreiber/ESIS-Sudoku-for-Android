@@ -6,7 +6,7 @@
 	<!--           App strings           -->
 	<!-- =============================== -->
 
-	<string name="DevelopedBy">developed by the second \"S\" of ESIS</string>
+	<string name="DevelopedBy">developed by the second \'S\' of ESIS</string>
 	<string name="app_name">ESISudoku</string>
 	<string name="app_email">sebasguillen@gmail.com</string>		
 	<string name="i_dont_care">Good to know</string>

@@ -43,24 +43,17 @@ public class Menu extends Activity{
         InitButtons();
         setListenerAndReloadDifficulty();
     }
-    
-    @Override
-	public void onBackPressed() {
-		if (MyApp.saved_game_exists)
-			startGameActivity();
-		super.onBackPressed();
-	}
 
-	private void setListenerAndReloadDifficulty() {
-		OnSharedPreferenceChangeListener li = new OnSharedPreferenceChangeListener() {
-		    public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
-		    	reloadGuiDifficulty(sp, key);
-		    }
-		};
-		SharedPreferences settings = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_READABLE);
-		settings.registerOnSharedPreferenceChangeListener(li);
-	    reloadGuiDifficulty(settings, MyApp.PREFERED_DIFFICULTY);
-	}
+    private void setListenerAndReloadDifficulty() {
+	OnSharedPreferenceChangeListener li = new OnSharedPreferenceChangeListener() {
+	    public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+		reloadGuiDifficulty(sp, key);
+	    }
+	};
+	SharedPreferences settings = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_READABLE);
+	settings.registerOnSharedPreferenceChangeListener(li);
+	reloadGuiDifficulty(settings, MyApp.PREFERED_DIFFICULTY);
+    }
 	
     private void reloadGuiDifficulty(SharedPreferences sp, String key) {
     	RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
@@ -184,7 +177,7 @@ public class Menu extends Activity{
 		final Button lb = (Button) findViewById(R.id.LoadGameButton);
 		final String date = FileSystemTool.getSavedGamesDate(this);
 		new AlertDialog.Builder(v.getContext())
-		    .setMessage("This will delete a previously saved game ("+date+")")
+		    .setMessage("This will delete a previously saved game from"+date)//TODO extract this string used also in game
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		            /* User clicked OK so start new game and delete last saved file*/  

@@ -495,7 +495,7 @@ public class Game extends Activity {
 		String date = FileSystemTool.getSavedGamesDate(this);
 		new AlertDialog.Builder(this)
 		    .setMessage("Do you want to save this game " +
-		    		"and delete a previously saved game ("+date+")?")
+		    		"and delete a previously saved game from "+date+"?")
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		        	saveGame();
