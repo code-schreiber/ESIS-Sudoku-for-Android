@@ -26,7 +26,7 @@
 	          android:layout_marginTop="10dip"/>
 	
 		  <View android:layout_height="2dip" 
-		  android:background="@color/solid_grey" android:layout_width="fill_parent"/>
+		  android:background="@color/lines_color" android:layout_width="fill_parent"/>
 		  
 	      <TextView
 	      	  android:id="@+id/Highscore_easy_view"

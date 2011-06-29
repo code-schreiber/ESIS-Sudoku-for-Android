@@ -4,7 +4,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/ll" 
 	android:layout_height="match_parent" 
-	android:layout_width="match_parent" android:gravity="center_horizontal">
+	android:layout_width="match_parent" 
+	android:gravity="center_horizontal">
 
 	<!--Dummy Layout for first Focus-->
 	<LinearLayout 
@@ -18,7 +19,7 @@
 		<Button android:layout_width="wrap_content"  android:text="Restart" android:id="@+id/ResetButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
 		<Button android:layout_width="wrap_content"  android:text="Pause" android:id="@+id/PauseButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
 		<Button android:layout_width="wrap_content"  android:text="Check" android:id="@+id/CheckButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
-		<Button android:layout_width="wrap_content" android:text="Help" android:id="@+id/HelpButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
+		<Button android:layout_width="wrap_content"  android:text="Help" android:id="@+id/HelpButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
 		<Button android:layout_width="wrap_content"  android:text="Save" android:id="@+id/SaveButton" android:layout_height="wrap_content" android:layout_weight="1"></Button>
 	</TableRow>
 	
@@ -37,7 +38,7 @@
 		    android:layout_weight="0"
 		    android:gravity="center"/>
 		
-		<View android:background="@color/solid_grey" android:layout_height="5dip"></View>
+		<View android:background="@color/lines_color" android:layout_height="5dip"></View>
 		    
 	</TableLayout>
 
@@ -87,11 +88,11 @@
 			<EditText android:id="@+id/editText13" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:maxLength="1"
-				android:layout_marginRight="3sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:inputType="numberDecimal" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 			
 			<EditText android:id="@+id/editText14" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -108,11 +109,11 @@
 			<EditText android:id="@+id/editText16" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:maxLength="1"
-				android:layout_marginRight="2sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:inputType="numberDecimal" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText17" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -153,11 +154,11 @@
 			<EditText android:id="@+id/editText23" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:inputType="numberDecimal" android:maxLength="1"
-				android:layout_marginRight="3sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText24" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -174,11 +175,11 @@
 			<EditText android:id="@+id/editText26" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:inputType="numberDecimal" android:maxLength="1"
-				android:layout_marginRight="3sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText27" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -225,7 +226,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText34" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -246,7 +247,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText37" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -268,7 +269,7 @@
 			
 		</TableRow>
 		
-		<View android:layout_height="5dip" android:background="@color/solid_grey"></View>
+		<View android:layout_height="5dip" android:background="@color/lines_color"></View>
 	
 		<TableRow android:layout_gravity="center"
 			android:baselineAligned="true" android:layout_height="wrap_content"
@@ -293,7 +294,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText44" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -314,7 +315,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText47" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -355,11 +356,11 @@
 			<EditText android:id="@+id/editText53" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:inputType="numberDecimal" android:maxLength="1"
-				android:layout_marginRight="3sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 			
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 			
 			<EditText android:id="@+id/editText54" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -376,11 +377,11 @@
 			<EditText android:id="@+id/editText56" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:inputType="numberDecimal" android:maxLength="1"
-				android:layout_marginRight="3sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText57" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -424,11 +425,11 @@
 			<EditText android:id="@+id/editText63" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:inputType="numberDecimal" android:maxLength="1"
-				android:layout_marginRight="3sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText64" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -445,11 +446,11 @@
 			<EditText android:id="@+id/editText66" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
 				android:inputType="numberDecimal" android:maxLength="1"
-				android:layout_marginRight="3sp" android:layout_height="wrap_content"
+				android:layout_height="wrap_content"
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText67" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -470,7 +471,7 @@
 			</EditText>
 		</TableRow>
 		
-		<View android:layout_height="5dip" android:background="@color/solid_grey"></View>
+		<View android:layout_height="5dip" android:background="@color/lines_color"></View>
 
 		<TableRow android:layout_gravity="center"
 			android:layout_height="wrap_content"
@@ -495,7 +496,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 			
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText74" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -516,7 +517,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 			
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText77" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -561,7 +562,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 			
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText84" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -582,7 +583,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText87" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -626,7 +627,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 			
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText94" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
@@ -647,7 +648,7 @@
 				android:gravity="center" android:longClickable="false">
 			</EditText>
 
-			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/solid_grey"></View>
+			<View android:layout_width="5dip" android:layout_height="fill_parent" android:background="@color/lines_color"></View>
 
 			<EditText android:id="@+id/editText97" android:layout_width="match_parent"
 				android:layout_weight="1" android:digits="123456789"
