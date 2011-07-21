@@ -4,10 +4,12 @@ import java.io.DataInputStream;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import esis.android.sudoku.R;
 import esis.android.sudoku.backend.Eula;
 import esis.android.sudoku.backend.FileSystemTool;
@@ -21,19 +23,29 @@ import esis.android.sudoku.backend.MyApp;
 public class Splash extends Activity{
 
     	private static final String TAG = Splash.class.getSimpleName();
-	boolean alreadyStarted = false;
+    	private static boolean alreadyStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
+        String versionCode = "";
+	try {
+	    versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+	} catch (NameNotFoundException e) {
+	    Log.e(TAG, e.getMessage());
+	}
         
-    	RelativeLayout splashLayout = (RelativeLayout) findViewById(R.id.SplashLayout);
-        final boolean _active = true;
-        final int _splashTime = 5*1000;        
+	TextView tv = (TextView) findViewById(R.id.SplashText);
+        tv.setText(versionCode + " | " + tv.getText());//FIXME choose a version code
         
+    	RelativeLayout splashLayout = 
+    	    (RelativeLayout) findViewById(R.id.SplashLayout);    	
     	setLayoutListener(splashLayout);
     	checkForSavedGame();
+    	
+        final boolean _active = true;
+        final int _splashTime = 5*1000; 
         launchThread(_active, _splashTime);
     }
     

@@ -58,6 +58,7 @@
 		</ImageView>
 				
 		<TextView 
+			android:id="@+id/SplashText" 
 			android:textColor="@color/solid_black" 
 			android:layout_width="fill_parent" 
 			android:layout_height="wrap_content" 
