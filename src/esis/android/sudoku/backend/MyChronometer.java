@@ -55,19 +55,17 @@ public class MyChronometer extends Chronometer {
 	}
 
 	/**
-         * Sets the last time paused.
-         * 
-         * @param base the new last time paused
-         */
+     * Sets the last time paused.
+     * @param base the new last time paused
+     */
 	private static void setLastTimePaused(long base) {
 		lastTimePaused = base - SystemClock.elapsedRealtime();
 	}
 
 	/**
-         * Gets the resume time.
-         * 
-         * @return the resume time
-         */
+     * Gets the resume time.
+     * @return the resume time
+     */
 	private static long getResumeTime() {
 		return lastTimePaused + SystemClock.elapsedRealtime();
 	}

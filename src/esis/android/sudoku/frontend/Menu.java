@@ -27,7 +27,6 @@ import esis.android.sudoku.backend.MyApp;
  * The class Menu
  * @author Sebastian Guillen
  * TODO 's
- * welcome dialog first time open (with eula)
  */
 
 public class Menu extends Activity{
@@ -167,6 +166,7 @@ public class Menu extends Activity{
 	private String getStringformArray(String[] array) {
 		String s = "";
 		for (String i : array) {
+			Log.d(TAG, "concadenate"+i);
 			s += i;
 		}
 		return s;

@@ -10,7 +10,9 @@
 	<string name="app_name">ESISudoku</string>
 	<string name="app_email">sebasguillen@gmail.com</string>		
 	<string name="i_dont_care">Good to know</string>
-	<string name="eula_title">End User Agreement</string>
+	<string name="eula_title">Licence Agreement</string>
+	<string name="refuse">Don\'t accept</string>
+	
 
 
 	<!-- =============================== -->
@@ -45,7 +47,7 @@
 	<string name="Hard">Hard</string>
 
 	<string-array name="Feedback_Message">
-		<item>Any comments or ideas are welcome. If you want to share some piece of mind please send an Email to </item>
+		<item>Any comments or ideas are welcome. If you want to share some piece of mind please send it to \n </item>
 		<item>@string/app_email</item>
 		<item>.\nWe would really apreciate it.</item>
 	</string-array>

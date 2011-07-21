@@ -178,6 +178,7 @@ public class Game extends Activity {
 		copyGrid();
 		triesCounter = 0;
 		((MyChronometer) findViewById(R.id.chronometer)).reset();
+		((MyChronometer) findViewById(R.id.chronometer)).start();
 	}
 
 	private void help() {
@@ -326,14 +327,13 @@ public class Game extends Activity {
 	 * @param position
 	 * @return the right position
 	 */
-	int evadeGuiLines(int position) {
+	private int evadeGuiLines(int position) {
 		if (position > 5)
 			position +=2;
 		else if (position > 2)
 			position++;
 		return position;
 	}
-
 
 	private void CheckGrid() {
 		boolean checking = false;// Unchecking

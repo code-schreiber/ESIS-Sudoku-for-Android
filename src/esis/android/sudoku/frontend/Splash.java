@@ -11,13 +11,12 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import esis.android.sudoku.R;
-import esis.android.sudoku.backend.Eula;
 import esis.android.sudoku.backend.FileSystemTool;
 import esis.android.sudoku.backend.MyApp;
 
 /**
  * @author Sebastian Guillen
- * TODO Remove wait time and implement a real splash screen. Until now we wait 3 seconds to continue (or continue when tapped)
+ * TODO Remove wait time and implement a real splash screen. Until now we wait some seconds to continue (or till tapped)
  */
 
 public class Splash extends Activity{
@@ -34,13 +33,16 @@ public class Splash extends Activity{
 	    versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 	} catch (NameNotFoundException e) {
 	    Log.e(TAG, e.getMessage());
-	}
-        
+	}        
+
 	TextView tv = (TextView) findViewById(R.id.SplashText);
         tv.setText(versionCode + " | " + tv.getText());//FIXME choose a version code
-        
+
     	RelativeLayout splashLayout = 
     	    (RelativeLayout) findViewById(R.id.SplashLayout);    	
+
+        //TODO Eula.showEulaRequireAcceptance(this);
+
     	setLayoutListener(splashLayout);
     	checkForSavedGame();
     	
@@ -96,7 +98,6 @@ public class Splash extends Activity{
 		}
 	}
         
-
 	public void checkForSavedGame() {
         	MyApp.saved_game_exists = true;
         	DataInputStream dis = FileSystemTool.openFileToLoad(getApplicationContext());
