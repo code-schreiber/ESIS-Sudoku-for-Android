@@ -50,7 +50,6 @@ public class Highscores extends Activity {
 	private void setListener() {
 		OnSharedPreferenceChangeListener listener = new OnSharedPreferenceChangeListener() {
 		    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		    	Log.d(TAG, "LISTENING "+ key);
 		    	updateGuiHighscore(key);
 		    }
 		};
@@ -90,8 +89,9 @@ public class Highscores extends Activity {
 	    SharedPreferences settings = getSharedPreferences(MyApp.HIGHSCORES, MODE_WORLD_READABLE);
 	    String value = settings.getString(key, defValue);
 	    String format = getString(R.string.Highscore_format);
-		String text = String.format(format, key, value);
-		((TextView)findViewById(fromWhom)).setText(text);
+	    String text = String.format(format, key, value);
+	    ((TextView)findViewById(fromWhom)).setText(text);
+	    Log.d(TAG, "Updated "+ key + " with " + text);
     }
 
     private void showWarning(final View v) {

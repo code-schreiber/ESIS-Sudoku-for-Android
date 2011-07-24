@@ -28,15 +28,7 @@ public class Splash extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash);
-        String versionCode = "";
-	try {
-	    versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-	} catch (NameNotFoundException e) {
-	    Log.e(TAG, e.getMessage());
-	}        
-
-	TextView tv = (TextView) findViewById(R.id.SplashText);
-        tv.setText(versionCode + " | " + tv.getText());//FIXME choose a version code
+        appendVersion();
 
     	RelativeLayout splashLayout = 
     	    (RelativeLayout) findViewById(R.id.SplashLayout);    	
@@ -49,6 +41,20 @@ public class Splash extends Activity{
         final boolean _active = true;
         final int _splashTime = 5*1000; 
         launchThread(_active, _splashTime);
+    }
+
+    private void appendVersion() {
+	String versionCode = "";
+	try {
+	    versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+	} catch (NameNotFoundException e) {
+	    Log.e(TAG, e.getMessage());
+	}        
+	if (versionCode != "")
+	    versionCode = "version " + versionCode + " | ";
+	
+	TextView tv = (TextView) findViewById(R.id.SplashText);
+        tv.setText(versionCode + tv.getText());
     }
     
 	@Override
