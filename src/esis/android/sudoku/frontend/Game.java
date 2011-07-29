@@ -494,8 +494,9 @@ public class Game extends Activity {
 	private void askForOverwrittingPermission(final boolean saveAndQuit) {
 		String date = FileSystemTool.getSavedGamesDate(this);
 		new AlertDialog.Builder(this)
-		    .setMessage("Do you want to save this game " +
-		    		"and delete a previously saved game from "+date+"?")
+		    .setMessage(getString(R.string.save_this_game) + " and " +
+		    			getString(R.string.delete_saved_game) +
+		    			" from " + date + "?")
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		        	saveGame();

@@ -62,6 +62,10 @@
 	<string name="Highscore_format">%1$s :  %2$s</string>
 	
 	<string name="preferred_date_format">dd.MM.yy</string>
+	
+	<string name="save_this_game">Do you want to save this game </string>
+	
+	<string name="delete_saved_game">delete a previously saved game</string>
 
 
 </resources>

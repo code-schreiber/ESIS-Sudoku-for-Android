@@ -177,7 +177,8 @@ public class Menu extends Activity{
 		final Button lb = (Button) findViewById(R.id.LoadGameButton);
 		final String date = FileSystemTool.getSavedGamesDate(this);
 		new AlertDialog.Builder(v.getContext())
-		    .setMessage("This will delete a previously saved game from"+date)//TODO extract this string used also in game
+		    .setMessage("This will " + getString(R.string.delete_saved_game) +
+		    			" from " + date)
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		            /* User clicked OK so start new game and delete last saved file*/  
