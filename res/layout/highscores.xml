@@ -31,20 +31,18 @@
 	      <TextView
 	      	  android:id="@+id/Highscore_easy_view"
 	          android:format="@string/Highscore_format"
-	          android:background="@drawable/blue"
 	          android:layout_width="match_parent"
-	          android:textColor="@color/solid_white"
+	          android:textColor="@color/solid_black"
 	          android:layout_height="wrap_content" 
 	          android:layout_marginBottom="3dip" 
-	          android:paddingLeft="4dip" android:textSize="26dip" android:layout_marginTop="3dip"/>
+	          android:paddingLeft="4dip" android:textSize="26dip" android:layout_marginTop="3dip" android:background="@color/solid_white"/>
 	          
 	      <TextView
 	          android:id="@+id/Highscore_medium_view"
 	          android:format="@string/Highscore_format"
-	          android:background="@drawable/green"
+	          android:background="@color/solid_orange"
 	          android:layout_width="match_parent"
-	          android:textColor="@color/solid_white"
-	          android:layout_height="wrap_content" android:layout_marginBottom="3dip" android:paddingLeft="4dip" android:textSize="26dip"/>
+	          android:layout_height="wrap_content" android:layout_marginBottom="3dip" android:paddingLeft="4dip" android:textSize="26dip" android:textColor="@color/solid_white"/>
 	          
 	      <TextView
 	          android:id="@+id/Highscore_hard_view"
@@ -64,19 +62,29 @@
 	        <Button 
 	        	android:id="@+id/ResetHighscoresButton"
 	            android:layout_height="wrap_content"
-	            android:text="@string/Reset" 
+	            android:text="@string/Reset"
 	            android:layout_width="match_parent"/>
 	
 	    </LinearLayout>		
 		
 	</LinearLayout>
 	
+	<ToggleButton 
+		android:textOn="Help is ON"
+		android:textOff="Help is OFF"
+		android:id="@+id/ToggleHelpButton"
+		android:layout_above="@+id/textview"
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent">
+	</ToggleButton>
+		
 	<TextView 
 		android:id="@+id/textview" 
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" 
 		android:text="@string/DevelopedBy"
-		android:layout_alignParentBottom="true" android:paddingLeft="5dip">
+		android:layout_alignParentBottom="true" 
+		android:paddingLeft="5dip">
 	</TextView>
 
 </RelativeLayout>

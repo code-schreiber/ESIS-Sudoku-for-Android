@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import esis.android.sudoku.R;
 import esis.android.sudoku.backend.MyApp;
 
@@ -40,11 +42,24 @@ public class Highscores extends Activity {
 
 	private void InitButtons() {
 		Button button =	(Button)findViewById(R.id.ResetHighscoresButton);
+		button.setBackgroundResource(R.drawable.cell);
 		button.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
 		    	showWarning(v);
 		    }
 		});
+		button = (Button)findViewById(R.id.ToggleHelpButton);
+		//FIXME ((ToggleButton)button).setBackgroundResource(R.drawable.radiobutton);
+    	SharedPreferences sp = getSharedPreferences(MyApp.HELP_ACTIVATED, MODE_WORLD_READABLE);
+    	((ToggleButton)button).setChecked(sp.getBoolean(MyApp.HELP_ACTIVATED, false));
+		button.setOnClickListener(new View.OnClickListener() {
+		    public void onClick(View v) {
+		    	SharedPreferences sp = getSharedPreferences(MyApp.HELP_ACTIVATED, MODE_WORLD_WRITEABLE);
+		    	Editor e = sp.edit();
+		    	e.putBoolean(MyApp.HELP_ACTIVATED, ((ToggleButton)v).isChecked());
+		    	e.commit();
+		    }
+		});		
 	}
 
 	private void setListener() {
@@ -95,7 +110,7 @@ public class Highscores extends Activity {
     }
 
     private void showWarning(final View v) {
-		new AlertDialog.Builder(v.getContext())
+		AlertDialog d = new AlertDialog.Builder(v.getContext())
 			.setMessage("All your hard work will be worth nothing")
 			.setPositiveButton(MyApp.getPositiveText(),
 			new DialogInterface.OnClickListener() {
@@ -103,13 +118,16 @@ public class Highscores extends Activity {
 				Toast.makeText(v.getContext(), "Highscores Cleared", Toast.LENGTH_SHORT).show();
 				resetHighscores();
 			    }
-			})
+			})			
 			.setNegativeButton(getString(R.string.i_dont_care), 
 			new DialogInterface.OnClickListener() {
 		    public void onClick(DialogInterface dialog, int whichButton) {
 			/* do nothing */
 		    }
-		}).create().show();
+		}).create();
+		d.show();
+		d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.cell);
+		d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.cell);
     }
 
     

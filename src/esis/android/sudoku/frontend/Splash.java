@@ -22,7 +22,7 @@ import esis.android.sudoku.backend.MyApp;
 public class Splash extends Activity{
 
     	private static final String TAG = Splash.class.getSimpleName();
-    	private static boolean alreadyStarted = false;
+    	//FIXME private static boolean alreadyStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +39,8 @@ public class Splash extends Activity{
     	checkForSavedGame();
     	
         final boolean _active = true;
-        final int _splashTime = 5*1000; 
-        launchThread(_active, _splashTime);
+        final int _splashTimeinSeconds = 1; 
+        launchThread(_active, _splashTimeinSeconds);
     }
 
     private void appendVersion() {
@@ -59,7 +59,7 @@ public class Splash extends Activity{
     
 	@Override
 	public void onBackPressed() {
-		alreadyStarted = true;
+		//FIXME alreadyStarted = true;
 		super.onBackPressed();
 	}
 
@@ -70,7 +70,7 @@ public class Splash extends Activity{
             public void run() {
                 try {
                     int waited = 0;
-                    while(_active && (waited < _splashTime)) {
+                    while(_active && (waited < _splashTime*1000)) {
                         sleep(100);
                         if(_active) {
                             waited += 100;
@@ -95,13 +95,13 @@ public class Splash extends Activity{
     }
     
 	private void startNextActivity() {
-		if (!alreadyStarted){
-			alreadyStarted = true;//so this isn't called again
+		//FIXME if (!alreadyStarted){
+		//FIXME alreadyStarted = true;//so this isn't called again
 			finish();
 			Intent intent = new Intent();
 			intent.setClass(Splash.this, Menu.class);
 			Splash.this.startActivity(intent);
-		}
+			//FIXME }
 	}
         
 	public void checkForSavedGame() {

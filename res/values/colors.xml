@@ -24,12 +24,15 @@
     <drawable name="translucent_background">#E0000000</drawable>
     <drawable name="transparent_background">#00000000</drawable>
 
-    <color name="solid_red">#F00</color>
+    <color name="solid_white">#FFF</color>
+    <color name="solid_yellow">#FFFFFF00</color>
+    <color name="solid_orange">#FF8000</color>
+    <color name="solid_red">#7F00</color><!--#FF0000-->
     <color name="solid_blue">#0000FF</color>
     <color name="solid_green">#F0F0</color>
-    <color name="solid_yellow">#FFFFFF00</color>
-    <color name="solid_black">#000</color>
-    <color name="solid_white">#FFF</color>
     <color name="solid_grey">#FF909090</color>
-    <color name="lines_color">#868686</color>
+    <color name="solid_black">#000</color>
+    
+   <color name="lines_color">#090909</color>
+   
 </resources>

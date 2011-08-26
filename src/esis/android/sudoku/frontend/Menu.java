@@ -2,6 +2,7 @@ package esis.android.sudoku.frontend;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +10,9 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -26,7 +30,7 @@ import esis.android.sudoku.backend.MyApp;
 /**
  * The class Menu
  * @author Sebastian Guillen
- * TODO 's
+ * 
  */
 
 public class Menu extends Activity{
@@ -65,6 +69,7 @@ public class Menu extends Activity{
 	    final RadioGroup difficultyRadioGroup = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
 	    for(int i = 0; i < difficultyRadioGroup.getChildCount(); i++){
 	    	RadioButton radioButton = (RadioButton)difficultyRadioGroup.getChildAt(i);
+	    	//FIXME radioButton.setBackgroundResource(R.drawable.radiobutton);
 		    radioButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {				
 				    SharedPreferences s = getSharedPreferences(MyApp.PREFERED_DIFFICULTY, MODE_WORLD_WRITEABLE);
@@ -78,18 +83,21 @@ public class Menu extends Activity{
 
     private void InitButtons() {
 		Button b = (Button) findViewById(R.id.NewGameButton);
+		b.setBackgroundResource(R.drawable.button);
 		b.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
 			newGameButtonAction(v);
 		    }
 		});
 		b = (Button) findViewById(R.id.LoadGameButton);
+		b.setBackgroundResource(R.drawable.button);
 		b.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
 			loadgameButtonAction(v);
 		    }
 		});
 		b = (Button) findViewById(R.id.HighscoresButton);
+		b.setBackgroundResource(R.drawable.button);
 		b.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
 			Intent intent = new Intent();
@@ -98,12 +106,14 @@ public class Menu extends Activity{
 		    }
 		});
 		b = (Button) findViewById(R.id.FeedbackButton);
+		b.setBackgroundResource(R.drawable.button);
 		b.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
 			launchFeedbackDialog(v);
 		    }
 		});
 		b = (Button) findViewById(R.id.ExitButton);
+		b.setBackgroundResource(R.drawable.button);
 		b.setOnClickListener(new View.OnClickListener() {
 		    public void onClick(View v) {
 			exitApp();
@@ -114,10 +124,17 @@ public class Menu extends Activity{
     private void newGameButtonAction(View v) {
 		if (MyApp.saved_game_exists) {
 		    deleteSavedGameWarning(v);
-		} else {
-		    RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
-		    CharSequence difficulty = ((RadioButton) findViewById(rg.getCheckedRadioButtonId())).getText();
-		    Toast.makeText(v.getContext(), "Creating " + difficulty + " Sudoku", Toast.LENGTH_LONG).show();
+		} else {		    
+		    final Context c = v.getContext();
+		    runOnUiThread(new Runnable() 
+	        {                
+	            public void run() {
+	                //TODO Your toast code here
+	            	RadioGroup rg = (RadioGroup) findViewById(R.id.DifficultyRadioGroup);
+				    final CharSequence difficulty = ((RadioButton) findViewById(rg.getCheckedRadioButtonId())).getText();
+					Toast.makeText(c, "Creating " + difficulty + " Sudoku", Toast.LENGTH_LONG).show();
+	            }
+	        });            
 		    startGameActivity();
 		}
     }
@@ -154,10 +171,17 @@ public class Menu extends Activity{
                     .setMessage(ss)
                     .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
+                        	sendFeedbackEmail();                        	
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.i_dont_care), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
                         	//Just go away.
                         }
                     }).create();
-        	d.show();
+        	d.show();        	
+        	d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.button);
+        	d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.button);
         	// Make the textview clickable. Must be called after show()
         	((TextView)d.findViewById(android.R.id.message))
         	.setMovementMethod(LinkMovementMethod.getInstance());
@@ -176,7 +200,7 @@ public class Menu extends Activity{
 		final Button b = (Button) findViewById(R.id.NewGameButton);
 		final Button lb = (Button) findViewById(R.id.LoadGameButton);
 		final String date = FileSystemTool.getSavedGamesDate(this);
-		new AlertDialog.Builder(v.getContext())
+		AlertDialog d = new AlertDialog.Builder(v.getContext())
 		    .setMessage("This will " + getString(R.string.delete_saved_game) +
 		    			" from " + date)
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
@@ -191,7 +215,24 @@ public class Menu extends Activity{
 		            /* load the game*/
 		            lb.performClick();
 		        }
-		    }).create().show();
+		    }).create();
+		d.show();
+		d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.cell);
+		d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.cell);
+	}
+
+	/**
+	 *  TODO populate email for feedback 
+	 *	http://thedevelopersinfo.wordpress.com/2009/10/22/email-sending-in-android/
+	 */
+	private void sendFeedbackEmail() {		
+		Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+		String[] recipients = new String[]{getString(R.string.app_email), "",};
+		emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, recipients);
+		emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Feedback");
+		emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Comments or ideas about "+getString(R.string.app_name)+":\n");
+		emailIntent.setType("text/plain");
+		startActivity(Intent.createChooser(emailIntent, "Send feedback"));
 	}
 	
 }

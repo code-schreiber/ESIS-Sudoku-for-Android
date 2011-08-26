@@ -14,14 +14,25 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.Window;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
+import android.view.WindowManager.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -31,11 +42,13 @@ import esis.android.sudoku.backend.BackendSudoku;
 import esis.android.sudoku.backend.FileSystemTool;
 import esis.android.sudoku.backend.MyApp;
 import esis.android.sudoku.backend.MyChronometer;
+import esis.android.sudoku.backend.MyPopup;
 
 /**
  * The class Game
  * @author Sebastian Guillen
  * TODO 's: 
+ * reorder f()'s, consider refactoring
  * Sign for 22 years (2033)
  * Your application must be signed with a cryptographic private key whose validity period ends after 22 October 2033.
  * bug when winning toast: you have errors
@@ -45,17 +58,21 @@ public class Game extends Activity {
 
 	private static final String TAG = Game.class.getSimpleName();
 	private final int SIZE = BackendSudoku.SIZE;
-	private int triesCounter = 0;
 	private BackendSudoku backendsudoku;
+	private MyPopup popup;
+	private TableLayout nineButtonsLayout;
+	private int triesCounter = 0;
 	private int removedNrs = 0;
 
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game);
-		InitButtons();
-		InitCellListeners();
+		initButtons();
+		initCells();
+	    initPopupWindow();
 		NewGame();
 	}	
 
@@ -79,24 +96,194 @@ public class Game extends Activity {
 	}
 	
 	/**	Release focus when number is typed in (listener to all cells) */
-	private void InitCellListeners() {
-	    for (int row = 0; row < SIZE; ++row)
-	    	for (int column = 0; column < SIZE; ++column){
-	    	    final EditText guiText = (EditText) findViewById(getEditTextId(row, column));
-	    	    guiText.addTextChangedListener(new TextWatcher() {
-			        public void afterTextChanged(Editable s) {
-			        	guiTextChanged(guiText);
-			        }
-					public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-						if(guiText.length() > 0)
-							guiText.setSelection(1);
+	private void initCells() {
+		final int nrOfGuilines = 2;	
+		final TableLayout sudokuGridLayout = (TableLayout)findViewById(R.id.SudokuGridLayout);
+		sudokuGridLayout.setBackgroundResource(R.color.lines_color);
+		populateSudokuGrid(nrOfGuilines, sudokuGridLayout);
+	}
+	
+	private void initPopupWindow() {	
+		nineButtonsLayout = new TableLayout(getApplicationContext());
+		nineButtonsLayout.setBackgroundResource(android.R.drawable.alert_dark_frame);
+		add9ButtonstoView();	
+		popup = new MyPopup(findViewById(android.R.id.content).getRootView());//get root view from current activity
+		popup.setContentView(nineButtonsLayout);
+	}
+	/**
+	 * Fills the grid with cells and lines.
+	 * @param nrOfGuilines
+	 * @param sudokuGridLayout
+	 * @param normalParams
+	 * @param horizontalLineParams
+	 * @param verticaLineParams
+	 */
+	private void populateSudokuGrid(final int nrOfGuilines, final TableLayout sudokuGridLayout) {// TODO i don like this refactoring
+		int guilinethickness = 5;	
+		LinearLayout.LayoutParams normalParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1);
+		LinearLayout.LayoutParams horizontalLineParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, guilinethickness);
+		LinearLayout.LayoutParams verticaLineParams = new LinearLayout.LayoutParams(guilinethickness, LayoutParams.FILL_PARENT);
+		//sudokuGridLayout.setWeightSum(SIZE + nrOfGuilines);//TODO works?
+		for (int row = 0; row < SIZE + nrOfGuilines; row++) {
+			if (indexIsCell(row)) {
+				final LinearLayout oneRow = addRowToGrid(sudokuGridLayout, normalParams, row);
+				for (int column = 0; column < SIZE + nrOfGuilines; ++column) {
+					if (indexIsCell(column)) {
+						addCellToGrid(normalParams, oneRow, column);
+					} else {
+						addLineToGrid(oneRow, verticaLineParams, column);
 					}
-					public void onTextChanged(CharSequence s, int start, int before, int count) {
-						/* Nothing */}
-	    	    });
-	    	}
+				}
+			} else {
+				addLineToGrid(sudokuGridLayout, horizontalLineParams, row);
+			}
+
+		}
+	}
+	/**
+	 * @param sudokuGridLayout
+	 * @param normalParams
+	 * @param row
+	 * @return
+	 */
+	private LinearLayout addRowToGrid(final TableLayout sudokuGridLayout, LinearLayout.LayoutParams normalParams, int row) {
+		sudokuGridLayout.addView(new LinearLayout(sudokuGridLayout.getContext()), row, normalParams);			
+		final LinearLayout oneRow = (LinearLayout)sudokuGridLayout.getChildAt(row);
+		//TODO oneRow.setWeightSum(SIZE + nrOfGuilines);
+		return oneRow;
+	}
+	/**
+	 * @param normalParams
+	 * @param oneRow
+	 * @param column
+	 */
+	private void addCellToGrid(LinearLayout.LayoutParams normalParams,
+			final LinearLayout oneRow, int column) {
+		oneRow.addView(new Button(oneRow.getContext()), column, normalParams);
+		final Button guiCell = (Button) oneRow.getChildAt(column);
+		guiCell.setBackgroundResource(R.drawable.cell);
+		setCellListeners(guiCell);
+	}
+	
+	/**
+	 * Set listeners for all popup buttons
+	 * @param parent the text we will change.
+	 */
+	private void setListeners(final View parent) {
+		for (View  v : nineButtonsLayout.getTouchables()) {// For all buttons
+			final Button b = ((Button)v);
+			b.setOnClickListener(new View.OnClickListener() {
+			    public void onClick(View v) {
+			    	 ((TextView)parent).setText(b.getText());
+			    	 popup.dismiss();		    	 
+			    }
+			});
+		}
 	}
 
+	/**
+	 * @param guiCell
+	 */
+	private void setCellListeners(final Button guiCell) {
+		guiCell.setOnClickListener(new OnClickListener() {				
+			public void onClick(View v) {
+				showPopup(v);					
+			}
+		});
+		guiCell.setOnLongClickListener(new OnLongClickListener() {							
+			public boolean onLongClick(View v) {
+				if (((TextView) v).length() != 0){
+					eraseCell((TextView) v);
+					return true;
+				}
+				return false;
+			}
+		});
+		guiCell.addTextChangedListener(new TextWatcher() {
+		    public void afterTextChanged(Editable s) {
+		    	guiTextChanged(guiCell);
+		    }
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				 /* Nothing */}
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				 /* Nothing */}
+		});
+	}
+
+	/**
+	 * @param parent
+	 * @param lineParams
+	 * @param i
+	 */
+	private void addLineToGrid(LinearLayout parent, LinearLayout.LayoutParams lineParams, int i) {
+		int guiLineColor = getResources().getColor(R.color.lines_color);
+		Button b = new Button(parent.getContext());
+		parent.addView(b, i, lineParams);
+		b.setBackgroundColor(guiLineColor);
+		b.setFocusable(false);
+	}
+	
+	/**
+	 * TODO f() erklärung
+	 * @param i
+	 */
+	private boolean indexIsCell(int i) {
+		if(i != 3 && i != 7)
+			return true;
+		return false;
+	}
+	protected void eraseCell(TextView v) {
+			v.setText("");
+			Toast.makeText(this, "Erased", Toast.LENGTH_SHORT).show();//TODO change message	
+	}
+	
+	private void showPopup(final View parent) {		
+		setListeners(parent);
+		int[] whereToBeShown = getXandY(parent);		
+		popup.showAtLocation(parent, Gravity.NO_GRAVITY, whereToBeShown[0], whereToBeShown[1]);// Launch!
+	}
+	/**
+	 * Get position where popup must be shown (Align centers)
+	 * @param locationOfParent
+	 */
+	private int[] getXandY(View parent) {
+		int[] locationOfParent = new int[2];
+		parent.getLocationInWindow(locationOfParent);
+		nineButtonsLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);//Measure before calling getMeasured___()
+		int x = (int)((locationOfParent[0] + (float)parent.getMeasuredWidth()/2)-((float)nineButtonsLayout.getMeasuredWidth()/2));
+		int y = (int)((locationOfParent[1] + (float)parent.getMeasuredHeight()/2)-((float)nineButtonsLayout.getMeasuredHeight()/2));
+		Rect rectgle = new Rect();
+		Window window = getWindow();
+		window.getDecorView().getWindowVisibleDisplayFrame(rectgle);
+		int statusBarHeight = rectgle.top;
+		if(y < statusBarHeight)//Show popup under the statusbar
+			y = statusBarHeight;
+		
+		int[] centerOfParent = new int[2];
+		centerOfParent[0] = x;
+		centerOfParent[1] = y;
+		return centerOfParent;
+	}
+	/**
+	 * 	Create all 9 Buttons
+	 */
+	private void add9ButtonstoView() {
+		final int three = SIZE/3;
+		Context c = nineButtonsLayout.getContext();
+		for (int row=0; row<three; row++){    		
+			nineButtonsLayout.addView(new LinearLayout(c),row);
+	    	for (int column=0; column<three; column++){
+	    		ViewGroup v = (ViewGroup) nineButtonsLayout.getChildAt(row);
+	    		final Button b = new Button(v.getContext());
+	    		b.setBackgroundResource(R.drawable.popupbutton);	
+				b.setTextColor(Color.WHITE);
+				b.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD), Typeface.BOLD);
+	    		int text = row * three + column + 1;//Calculate 1-9 from row and column
+				b.setText(String.valueOf(text));
+	    		v.addView(b, column);
+	    	}
+		}
+	}
 	private void NewGame() {
 		backendsudoku = new BackendSudoku();
 		if (MyApp.saved_game_exists) {// Load previously saved game
@@ -193,16 +380,17 @@ public class Game extends Activity {
 	 * places are empty, and would take one randomly
 	 */
 	private void showOneSolutionNumber() {
+		TableLayout sudokuGridLayout = (TableLayout) findViewById(R.id.SudokuGridLayout);
 		Random rand = new Random();
 		int row;
 		int column;
-		while (true) {//danger of infinite loop
+		while (true) {//FIXME danger of infinite loop
 			row = rand.nextInt(SIZE);
 			column = rand.nextInt(SIZE);
-			EditText guiText = (EditText) findViewById(getEditTextId(row, column));
-			if (guiText.getText().toString().equals("")) {
-				guiText.requestFocus();
-				guiText.setText(Integer.toString(backendsudoku.solved_grid[row][column]));
+			Button cellText = getCell(sudokuGridLayout, row, column);
+			if (cellText.getText().toString().equals("")) {
+				cellText.requestFocus();
+				cellText.setText(Integer.toString(backendsudoku.solved_grid[row][column]));
 				((Button) findViewById(R.id.HelpButton)).requestFocus();
 				return;
 			}
@@ -210,13 +398,14 @@ public class Game extends Activity {
 	}
 
 	private void copyGuiCellsToArray(int[][] guiCells) {
+		TableLayout sudokuGridLayout = (TableLayout) findViewById(R.id.SudokuGridLayout);
 	    for (int row = 0; row < SIZE; ++row)
 	    	for (int column = 0; column < SIZE; ++column){
-	    	    EditText guiText = (EditText) findViewById(getEditTextId(row, column));				
-	    	    if (guiText.isFocusable() && guiText.isEnabled() && !guiText.getText().toString().equals(""))
-	    		guiCells[row][column] = Integer.parseInt(guiText.getText().toString());
+	    		Button cellText = getCell(sudokuGridLayout, row, column);				
+	    	    if (cellText.isFocusable() && cellText.isEnabled() && !cellText.getText().toString().equals(""))
+	    	    	guiCells[row][column] = Integer.parseInt(cellText.getText().toString());
 	    	    else
-	    		guiCells[row][column] = 0;
+	    	    	guiCells[row][column] = 0;
 	    	}
 	}
 
@@ -228,11 +417,12 @@ public class Game extends Activity {
 	}
 
 	private void copyUserNumbersToGui(int[][] user_entered_numbers) {
+		TableLayout sudokuGridLayout = (TableLayout) findViewById(R.id.SudokuGridLayout);
 	    for (int row = 0; row < SIZE; ++row)
 	        for (int column = 0; column < SIZE; ++column)
 	    	if (user_entered_numbers[row][column] != 0) {
-	    	    EditText guiText = (EditText) findViewById(getEditTextId(row, column));
-	    	    setUserCell(guiText, Integer.toString(user_entered_numbers[row][column]));
+	    	    Button cellText = getCell(sudokuGridLayout, row, column);
+	    	    setTextofCell(cellText, Integer.toString(user_entered_numbers[row][column]));
 	    	}
 	}
 
@@ -248,24 +438,19 @@ public class Game extends Activity {
 	    	}
 	}
 
-	private void InitButtons() {    	
+	private void initButtons() {    	
 		Button button;
 
 		button = (Button) findViewById(R.id.CheckButton);
+		button.setBackgroundResource(R.drawable.button);
 		button.setEnabled(false);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				CheckGrid();
 			}
 		});
-		button = (Button) findViewById(R.id.HelpButton);
-		button.setEnabled(false);
-		button.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				help();
-			}
-		});
 		button = (Button) findViewById(R.id.ResetButton);
+		button.setBackgroundResource(R.drawable.button);
 		button.setEnabled(false);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -273,6 +458,7 @@ public class Game extends Activity {
 			}
 		});
 		button = (Button) findViewById(R.id.PauseButton);
+		button.setBackgroundResource(R.drawable.button);
 		button.setEnabled(false);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -280,50 +466,67 @@ public class Game extends Activity {
 			}
 		});
 		button = (Button) findViewById(R.id.SaveButton);
+		button.setBackgroundResource(R.drawable.button);
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				tryToSaveGame(false);
 			}
 		});
+    	SharedPreferences sp = getSharedPreferences(MyApp.HELP_ACTIVATED, MODE_WORLD_READABLE);
+		button = (Button) findViewById(R.id.HelpButton);
+    	if(sp.getBoolean(MyApp.HELP_ACTIVATED, false)){
+    		button.setBackgroundResource(R.drawable.button);
+    		button.setEnabled(false);
+    		button.setOnClickListener(new View.OnClickListener() {
+    			public void onClick(View v) {
+    				help();
+    			}
+    		});
+    	}
+    	else{
+    		button.setVisibility(View.GONE);
+    	}
+
 	}
 
 	private void copyGrid() {
+		TableLayout sudokuGridLayout = (TableLayout) findViewById(R.id.SudokuGridLayout);
 		for (int row = 0; row < SIZE; ++row) {
 			for (int column = 0; column < SIZE; ++column) {
-			    	EditText guiText = (EditText) findViewById(getEditTextId(row, column));
+			    Button cellText = getCell(sudokuGridLayout, row, column);
 				int backendCellNumber = backendsudoku.unsolved_grid[row][column];
 				if (backendCellNumber != 0)
-					setGivenCell(guiText, backendCellNumber);
+					setGivenCell(cellText, backendCellNumber);
 				else
-					setUserCell(guiText, "");
+					setTextofCell(cellText, "");
 			}
 		}
 	}
 
-	private void setUserCell(EditText gT, String text) {
-		gT.setText(text);
-		gT.setEnabled(true);
-		gT.setFocusable(true);
-		gT.setTextColor(getResources().getColor(R.color.solid_black));
+	private void setTextofCell(Button cell, String text) {
+		cell.setText(text);
+		cell.setEnabled(true);
+		cell.setFocusable(true);
+		cell.setTextColor(getResources().getColor(R.color.solid_black));
 	}
 	
-	private void setGivenCell(EditText gT, int backendCellNumber) {
-		gT.setText(Integer.toString(backendCellNumber));
-		gT.setEnabled(false);
-		gT.setFocusable(false);
-		gT.setTextColor(getResources().getColor(color.primary_text_dark));
+	private void setGivenCell(Button cell, int backendCellNumber) {
+		cell.setText(Integer.toString(backendCellNumber));
+		cell.setEnabled(false);
+		cell.setFocusable(false);
+		cell.setTextColor(getResources().getColor(color.primary_text_dark));
 	}
 
-	private int getEditTextId(int row, int column) {
-		TableLayout tl = (TableLayout) findViewById(R.id.SudokuGridLayout);
+	private Button getCell(TableLayout sudokuGrid, int row, int column) {
 		row = evadeGuiLines(row);
 		column = evadeGuiLines(column);
-		return ((TableRow) tl.getChildAt(row)).getChildAt(column).getId();
+		return (Button) ((LinearLayout) sudokuGrid.getChildAt(row)).getChildAt(column);
 	}
 	
 	/**
 	 * This makes sure we don't return the dividing gui lines.
-	 * It is supposed to be called only from getEditTextId().
+	 * It is supposed to only be called by getCellId().
+	 * Info: Gui lines are: 3,7 [index 0]
 	 * @param position
 	 * @return the right position
 	 */
@@ -367,16 +570,17 @@ public class Game extends Activity {
 	}
 
 	private void checkUserCells(boolean action) {
+		TableLayout sudokuGridLayout = (TableLayout) findViewById(R.id.SudokuGridLayout);
 	    for (int row = 0; row < SIZE; ++row)
 	        for (int column = 0; column < SIZE; ++column) {
-	        	EditText guiText = (EditText) findViewById(getEditTextId(row, column));
-	    		if (guiText.isFocusable()) {// if it is a user cell
-	    		    guiText.setEnabled(!action);
-	    		    if (!guiText.getText().toString().equals("")) {
+	        	Button guiCell = getCell(sudokuGridLayout, row, column);
+	    		if (guiCell.isFocusable()) {// if it is a user cell
+	    		    guiCell.setEnabled(!action);
+	    		    if (!guiCell.getText().toString().equals("")) {
 		    			if (!action)
-		    			    guiText.setTextColor(getResources().getColor(R.color.solid_black));
+		    			    guiCell.setTextColor(getResources().getColor(R.color.solid_black));
 		    			else
-		    			    markMistakes(guiText, row, column);
+		    			    markMistakes(guiCell, row, column);
 	    		    }
 	    		}
 	        }
@@ -394,20 +598,22 @@ public class Game extends Activity {
 	}
 
 	private boolean sudokuIsComplete() {
+		TableLayout sudokuGridLayout = (TableLayout) findViewById(R.id.SudokuGridLayout);
 		for (int row = 0; row < SIZE; ++row)
 			for (int column = 0; column < SIZE; ++column) {
-			    EditText guiText = (EditText) findViewById(getEditTextId(row, column));
-				if (guiText.getText().toString().equals(""))
+			    Button guiCell = getCell(sudokuGridLayout, row, column);
+				if (guiCell.getText().toString().equals(""))
 					return false;
 			}
 		return true;
 	}
 
 	private boolean sudokuIsCorrect() {
+		TableLayout sudokuGridLayout = (TableLayout) findViewById(R.id.SudokuGridLayout);
 		for (int row = 0; row < SIZE; ++row)
 			for (int column = 0; column < SIZE; ++column) {
-			    EditText guiText = (EditText) findViewById(getEditTextId(row, column));
-				if (!guiText.getText().toString().equals(Integer.toString(backendsudoku.solved_grid[row][column])))
+				Button guiCell = getCell(sudokuGridLayout, row, column);
+				if (!guiCell.getText().toString().equals(Integer.toString(backendsudoku.solved_grid[row][column])))
 					return false;
 			}
 		return true;
@@ -427,7 +633,7 @@ public class Game extends Activity {
 	}
 
 	private void showWonMessage() {
-	    new AlertDialog.Builder(this)
+	    AlertDialog d = new AlertDialog.Builder(this)
 	    	.setIcon(R.drawable.icon)
 	    	.setTitle(R.string.Won_Title)
 	    	.setMessage(R.string.Won_Mesage)
@@ -442,7 +648,9 @@ public class Game extends Activity {
 	    			/* User clicked Cancel so do some stuff */
 	    			Game.this.finish();
 	    		    }
-	    	}).create().show();
+	    	}).setCancelable(false).create();
+	    d.show();
+	    setButtonsBackground(d);
 	}
 
     private void saveHighscore(String newTime) {
@@ -477,11 +685,8 @@ public class Game extends Activity {
 	    		Log.e(TAG, "Couldn't set new highscore");
 	}
 
-	private void guiTextChanged(final EditText guiText) {
-		Log.d(TAG, "listening to cell text change.");
-		if(guiText.length() != 0){
-			InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(guiText.getWindowToken(), 0);
+	private void guiTextChanged(final Button guiCell) {
+		if(guiCell.length() != 0){
 			triesCounter++;
 			if (triesCounter >= removedNrs)
 				checkIfWon();
@@ -493,10 +698,13 @@ public class Game extends Activity {
 	
 	private void askForOverwrittingPermission(final boolean saveAndQuit) {
 		String date = FileSystemTool.getSavedGamesDate(this);
-		new AlertDialog.Builder(this)
-		    .setMessage(getString(R.string.save_this_game) + " and " +
-		    			getString(R.string.delete_saved_game) +
-		    			" from " + date + "?")
+		String msg = getString(R.string.delete_saved_game) + " from " + date + "?";
+		if (saveAndQuit)
+			msg = getString(R.string.save_this_game) + " and " + msg;
+		else
+			msg = msg.replace("de", "De");
+		AlertDialog d = new AlertDialog.Builder(this)
+		    .setMessage(msg)
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		        	saveGame();
@@ -509,12 +717,31 @@ public class Game extends Activity {
 		        	if(saveAndQuit)
 		        		exitGame();
 		        }
-		    }).create().show();
+		    }).create();
+		d.show();
+		setButtonsBackground(d);
+	}
+
+	/**
+	 * @param alertDialog
+	 */
+	private void setButtonsBackground(AlertDialog alertDialog) {
+		Button b = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+		if (b != null)
+			b.setBackgroundResource(R.drawable.button);
+		b = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+		if (b != null)
+			b.setBackgroundResource(R.drawable.button);
+		b = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+		if (b != null)
+			b.setBackgroundResource(R.drawable.button);
 	}
 
 	private void tryToSaveGame(boolean saveAndQuit) {
-		if (MyApp.saved_game_exists)
-			askForOverwrittingPermission(saveAndQuit);			
+		if (MyApp.saved_game_exists){
+			if(!savedGameisExactlyCurrentGame())
+				askForOverwrittingPermission(saveAndQuit);
+		}			
 		else{
 			saveGame();
         	if(saveAndQuit)
@@ -522,7 +749,12 @@ public class Game extends Activity {
 		}
 	}
 	
-    private void exitGame(){
+    private boolean savedGameisExactlyCurrentGame() {
+		// Implement comparing saved & gui games
+		return false;
+	}
+    
+	private void exitGame(){
 	    Log.d(TAG, "Exiting Game");
 	    this.finish();
 	}	

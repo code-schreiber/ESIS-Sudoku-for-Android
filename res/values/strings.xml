@@ -28,8 +28,7 @@
 
 	<string name="Won_Title">Congrats, You Won!</string>
 
-	<string name="Won_Mesage">Tap OK if you want to play again or Menu to exit
-		the game</string>
+	<string name="Won_Mesage">Play again?\n Tap Menu to exit the game</string>
 
 	<string name="no_game_to_load">No game to load</string>
 
@@ -47,8 +46,7 @@
 	<string name="Hard">Hard</string>
 
 	<string-array name="Feedback_Message">
-		<item>Any comments or ideas are welcome. If you want to share some piece of mind please send it to \n </item>
-		<item>@string/app_email</item>
+		<item>Any comments or ideas are welcome. If you want to share some piece of mind please send it to us</item>
 		<item>.\nWe would really apreciate it.</item>
 	</string-array>
 
@@ -63,9 +61,9 @@
 	
 	<string name="preferred_date_format">dd.MM.yy</string>
 	
-	<string name="save_this_game">Do you want to save this game </string>
+	<string name="save_this_game">Save this game </string>
 	
-	<string name="delete_saved_game">delete a previously saved game</string>
+	<string name="delete_saved_game">delete a previously saved one</string>
 
 
 </resources>

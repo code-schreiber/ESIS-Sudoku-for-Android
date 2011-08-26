@@ -44,7 +44,7 @@ public class BackendSudoku {
 		public int getZeile(){return zeile;}
 		public void setZeile(int x){zeile = x;}
 		public int getSpalte(){return spalte;}
-		private void setSpalte(int x){spalte = x;}//FIXME?
+		private void setSpalte(int x){spalte = x;}//FIXME ?
 	}
 	
 	Zellen[] pZellen;
