@@ -35,7 +35,10 @@
 	          android:textColor="@color/solid_black"
 	          android:layout_height="wrap_content" 
 	          android:layout_marginBottom="3dip" 
-	          android:paddingLeft="4dip" android:textSize="26dip" android:layout_marginTop="3dip" android:background="@color/solid_white"/>
+	          android:paddingLeft="4dip" 
+			  android:textSize="26dip" 
+			  android:layout_marginTop="3dip" 
+			  android:background="@color/solid_yellow"/>
 	          
 	      <TextView
 	          android:id="@+id/Highscore_medium_view"

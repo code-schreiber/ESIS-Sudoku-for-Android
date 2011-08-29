@@ -18,6 +18,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -160,31 +161,35 @@ public class Menu extends Activity{
 	}	
 
 	private void launchFeedbackDialog(View v) {
-			Resources res = getResources();
-			String s = getStringformArray(res.getStringArray(R.array.Feedback_Message));
-        	final SpannableString ss = new SpannableString(s);
-        	Linkify.addLinks(ss, Linkify.EMAIL_ADDRESSES);
+		Resources res = getResources();
+		String s = getStringformArray(res.getStringArray(R.array.Feedback_Message));
         	final Button b = (Button) findViewById(R.id.FeedbackButton);
         	final AlertDialog d = new AlertDialog.Builder(v.getContext())
-                    .setIcon(R.drawable.icon)
-                    .setTitle(b.getText())
-                    .setMessage(ss)
-                    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        	sendFeedbackEmail();                        	
-                        }
-                    })
-                    .setNegativeButton(getString(R.string.i_dont_care), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        	//Just go away.
-                        }
-                    }).create();
-        	d.show();        	
-        	d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.button);
-        	d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.button);
-        	// Make the textview clickable. Must be called after show()
-        	((TextView)d.findViewById(android.R.id.message))
-        	.setMovementMethod(LinkMovementMethod.getInstance());
+	        .setIcon(R.drawable.icon)
+	        .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int whichButton) {
+	            	sendFeedbackEmail();                        	
+	            }
+	        })
+	        .setNegativeButton(getString(R.string.i_dont_care), new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int whichButton) {
+	            	//Just go away.
+	            }
+	        }).create();
+        	customiseDialog(d, (String)b.getText(), s);
+	}
+
+	//TODO make dialog maker for every class! in a new class for all and make it protected!
+	private void customiseDialog(AlertDialog d, String title, String msg) {
+	    d.setTitle(title);
+	    d.setMessage(msg);
+	    d.show();
+	    d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.button);
+	    d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.button);
+	    WindowManager.LayoutParams lp = d.getWindow().getAttributes();  
+	    lp.dimAmount = 0.0f;  
+	    d.getWindow().setAttributes(lp);  
+	    d.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
 	}
 
 	private String getStringformArray(String[] array) {
@@ -201,8 +206,6 @@ public class Menu extends Activity{
 		final Button lb = (Button) findViewById(R.id.LoadGameButton);
 		final String date = FileSystemTool.getSavedGamesDate(this);
 		AlertDialog d = new AlertDialog.Builder(v.getContext())
-		    .setMessage("This will " + getString(R.string.delete_saved_game) +
-		    			" from " + date)
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		            /* User clicked OK so start new game and delete last saved file*/  
@@ -216,9 +219,8 @@ public class Menu extends Activity{
 		            lb.performClick();
 		        }
 		    }).create();
-		d.show();
-		d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.cell);
-		d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.cell);
+		String msg = "This will " + getString(R.string.delete_saved_game) + " from " + date;
+		customiseDialog(d, "", msg);
 	}
 
 	/**

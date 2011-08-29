@@ -46,7 +46,7 @@
 	<string name="Hard">Hard</string>
 
 	<string-array name="Feedback_Message">
-		<item>Any comments or ideas are welcome. If you want to share some piece of mind please send it to us</item>
+		<item>Any comments or ideas are welcome. Do you want to share some piece of mind?</item>
 		<item>.\nWe would really apreciate it.</item>
 	</string-array>
 

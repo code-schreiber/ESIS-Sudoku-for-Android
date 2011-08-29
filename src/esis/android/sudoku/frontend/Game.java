@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,7 +120,7 @@ public class Game extends Activity {
 	 * @param verticaLineParams
 	 */
 	private void populateSudokuGrid(final int nrOfGuilines, final TableLayout sudokuGridLayout) {// TODO i don like this refactoring
-		int guilinethickness = 5;	
+		int guilinethickness = 5;//TODO  android.util.TypedValue to set unit: dip
 		LinearLayout.LayoutParams normalParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1);
 		LinearLayout.LayoutParams horizontalLineParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, guilinethickness);
 		LinearLayout.LayoutParams verticaLineParams = new LinearLayout.LayoutParams(guilinethickness, LayoutParams.FILL_PARENT);
@@ -157,11 +158,12 @@ public class Game extends Activity {
 	 * @param oneRow
 	 * @param column
 	 */
-	private void addCellToGrid(LinearLayout.LayoutParams normalParams,
-			final LinearLayout oneRow, int column) {
+	private void addCellToGrid(LinearLayout.LayoutParams normalParams, final LinearLayout oneRow, int column) {
 		oneRow.addView(new Button(oneRow.getContext()), column, normalParams);
 		final Button guiCell = (Button) oneRow.getChildAt(column);
 		guiCell.setBackgroundResource(R.drawable.cell);
+		guiCell.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD), Typeface.BOLD);
+		guiCell.setTextSize(TypedValue.COMPLEX_UNIT_FRACTION_PARENT, 15);//TODO FIXME 99% of parent size
 		setCellListeners(guiCell);
 	}
 	
@@ -276,10 +278,10 @@ public class Game extends Activity {
 	    		ViewGroup v = (ViewGroup) nineButtonsLayout.getChildAt(row);
 	    		final Button b = new Button(v.getContext());
 	    		b.setBackgroundResource(R.drawable.popupbutton);	
-				b.setTextColor(Color.WHITE);
-				b.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD), Typeface.BOLD);
+			b.setTextColor(Color.WHITE);
+			b.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD), Typeface.BOLD);
 	    		int text = row * three + column + 1;//Calculate 1-9 from row and column
-				b.setText(String.valueOf(text));
+			b.setText(String.valueOf(text));
 	    		v.addView(b, column);
 	    	}
 		}
@@ -309,7 +311,7 @@ public class Game extends Activity {
 		FileSystemTool.writeGameToFile(backendsudoku.solved_grid, backendsudoku.unsolved_grid, guiCells);
 	}
 
-	private void loadGame() {
+	private void loadGame() {//FIXME bug in chrono when phone was rebooted
 		int[][] user_entered_numbers = new int[SIZE][SIZE];
 	
 		DataInputStream dis = null;
@@ -725,7 +727,7 @@ public class Game extends Activity {
 	/**
 	 * @param alertDialog
 	 */
-	private void setButtonsBackground(AlertDialog alertDialog) {
+	private void setButtonsBackground(AlertDialog alertDialog) {//TODO blur background on all dialogs
 		Button b = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
 		if (b != null)
 			b.setBackgroundResource(R.drawable.button);

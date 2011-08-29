@@ -6,6 +6,5 @@
 		android:drawable="@drawable/popupbutton_pressed" />
 	<item android:state_focused="true"
 		android:drawable="@drawable/popupbutton_focused" />
-	<item android:drawable="@drawable/popupbutton_normal" />
-	
+	<item android:drawable="@drawable/popupbutton_normal" />	
 </selector>
