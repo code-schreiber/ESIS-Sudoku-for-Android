@@ -38,7 +38,7 @@
 		    android:textSize="14sp"
 		    android:gravity="center"/>
 		
-		<View android:background="@color/lines_color" android:layout_height="5dip"></View>
+		<View android:background="@color/lines_color" android:layout_height="3dip"></View>
 		    
 	</TableLayout>
 
@@ -70,7 +70,7 @@
 
 
 	</TableLayout>
-	<View android:id="@+id/line_under_grid" android:layout_below="@+id/SudokuGridLayout" android:layout_height="5dip" android:layout_width="match_parent" android:background="@color/lines_color"></View>
+	<View android:id="@+id/line_under_grid" android:layout_below="@+id/SudokuGridLayout" android:layout_width="match_parent" android:background="@color/lines_color" android:layout_height="3dip"></View>
 	
 	<LinearLayout 
 		android:id="@+id/textview" 

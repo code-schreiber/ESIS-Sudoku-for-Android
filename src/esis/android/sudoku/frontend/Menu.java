@@ -10,19 +10,11 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.text.SpannableString;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 import esis.android.sudoku.R;
 import esis.android.sudoku.backend.FileSystemTool;
@@ -176,20 +168,7 @@ public class Menu extends Activity{
 	            	//Just go away.
 	            }
 	        }).create();
-        	customiseDialog(d, (String)b.getText(), s);
-	}
-
-	//TODO make dialog maker for every class! in a new class for all and make it protected!
-	private void customiseDialog(AlertDialog d, String title, String msg) {
-	    d.setTitle(title);
-	    d.setMessage(msg);
-	    d.show();
-	    d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.button);
-	    d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.button);
-	    WindowManager.LayoutParams lp = d.getWindow().getAttributes();  
-	    lp.dimAmount = 0.0f;  
-	    d.getWindow().setAttributes(lp);  
-	    d.getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+        	MyDialog.showCustomisedDialog(d, (String)b.getText(), s);
 	}
 
 	private String getStringformArray(String[] array) {
@@ -220,7 +199,7 @@ public class Menu extends Activity{
 		        }
 		    }).create();
 		String msg = "This will " + getString(R.string.delete_saved_game) + " from " + date;
-		customiseDialog(d, "", msg);
+		MyDialog.showCustomisedDialog(d, "", msg);
 	}
 
 	/**

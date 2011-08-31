@@ -111,7 +111,6 @@ public class Highscores extends Activity {
 
     private void showWarning(final View v) {
 		AlertDialog d = new AlertDialog.Builder(v.getContext())
-			.setMessage("All your hard work will be worth nothing")
 			.setPositiveButton(MyApp.getPositiveText(),
 			new DialogInterface.OnClickListener() {
 			    public void onClick(DialogInterface dialog, int whichButton) {
@@ -125,9 +124,7 @@ public class Highscores extends Activity {
 			/* do nothing */
 		    }
 		}).create();
-		d.show();
-		d.getButton(DialogInterface.BUTTON_POSITIVE).setBackgroundResource(R.drawable.cell);
-		d.getButton(DialogInterface.BUTTON_NEGATIVE).setBackgroundResource(R.drawable.cell);
+		MyDialog.showCustomisedDialog(d, "All your hard work will be worth nothing");
     }
 
     

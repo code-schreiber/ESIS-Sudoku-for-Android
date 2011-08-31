@@ -25,17 +25,13 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.WindowManager.LayoutParams;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import esis.android.sudoku.R;
@@ -112,6 +108,28 @@ public class Game extends Activity {
 		popup.setContentView(nineButtonsLayout);
 	}
 	/**
+	 * 	Create all 9 Buttons
+	 */
+	private void add9ButtonstoView() {
+		final int three = SIZE/3;
+		Context c = nineButtonsLayout.getContext();
+		for (int row=0; row<three; row++){    		
+			nineButtonsLayout.addView(new LinearLayout(c),row);
+	    	for (int column=0; column<three; column++){
+	    		ViewGroup v = (ViewGroup) nineButtonsLayout.getChildAt(row);
+	    		final Button b = new Button(v.getContext());
+	    		b.setBackgroundResource(R.drawable.popupbutton);	
+			b.setTextColor(Color.WHITE);
+			b.setTextSize(TypedValue.COMPLEX_UNIT_FRACTION_PARENT, 10);
+			b.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD), Typeface.BOLD);
+	    		int text = row * three + column + 1;//Calculate 1-9 from row and column
+			b.setText(String.valueOf(text));
+	    		v.addView(b, column);
+	    	}
+		}
+	}
+
+	/**
 	 * Fills the grid with cells and lines.
 	 * @param nrOfGuilines
 	 * @param sudokuGridLayout
@@ -119,8 +137,8 @@ public class Game extends Activity {
 	 * @param horizontalLineParams
 	 * @param verticaLineParams
 	 */
-	private void populateSudokuGrid(final int nrOfGuilines, final TableLayout sudokuGridLayout) {// TODO i don like this refactoring
-		int guilinethickness = 5;//TODO  android.util.TypedValue to set unit: dip
+	private void populateSudokuGrid(final int nrOfGuilines, final TableLayout sudokuGridLayout) {
+		int guilinethickness = 3;//TODO  android.util.TypedValue to set unit: dip
 		LinearLayout.LayoutParams normalParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1);
 		LinearLayout.LayoutParams horizontalLineParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, guilinethickness);
 		LinearLayout.LayoutParams verticaLineParams = new LinearLayout.LayoutParams(guilinethickness, LayoutParams.FILL_PARENT);
@@ -163,7 +181,8 @@ public class Game extends Activity {
 		final Button guiCell = (Button) oneRow.getChildAt(column);
 		guiCell.setBackgroundResource(R.drawable.cell);
 		guiCell.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD), Typeface.BOLD);
-		guiCell.setTextSize(TypedValue.COMPLEX_UNIT_FRACTION_PARENT, 15);//TODO FIXME 99% of parent size
+		guiCell.setTextSize(TypedValue.COMPLEX_UNIT_FRACTION_PARENT, 19);//TODO FIXME 99% of parent size and same size and style for popup numbers (other colors of course)
+		guiCell.setIncludeFontPadding(false);
 		setCellListeners(guiCell);
 	}
 	
@@ -226,7 +245,7 @@ public class Game extends Activity {
 	}
 	
 	/**
-	 * TODO f() erklärung
+	 * Returns true if the given index is a cell in the gui
 	 * @param i
 	 */
 	private boolean indexIsCell(int i) {
@@ -234,9 +253,10 @@ public class Game extends Activity {
 			return true;
 		return false;
 	}
-	protected void eraseCell(TextView v) {
+	
+	private void eraseCell(TextView v) {
 			v.setText("");
-			Toast.makeText(this, "Erased", Toast.LENGTH_SHORT).show();//TODO change message	
+			Toast.makeText(this, "Erased", Toast.LENGTH_SHORT).show();
 	}
 	
 	private void showPopup(final View parent) {		
@@ -265,26 +285,6 @@ public class Game extends Activity {
 		centerOfParent[0] = x;
 		centerOfParent[1] = y;
 		return centerOfParent;
-	}
-	/**
-	 * 	Create all 9 Buttons
-	 */
-	private void add9ButtonstoView() {
-		final int three = SIZE/3;
-		Context c = nineButtonsLayout.getContext();
-		for (int row=0; row<three; row++){    		
-			nineButtonsLayout.addView(new LinearLayout(c),row);
-	    	for (int column=0; column<three; column++){
-	    		ViewGroup v = (ViewGroup) nineButtonsLayout.getChildAt(row);
-	    		final Button b = new Button(v.getContext());
-	    		b.setBackgroundResource(R.drawable.popupbutton);	
-			b.setTextColor(Color.WHITE);
-			b.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD), Typeface.BOLD);
-	    		int text = row * three + column + 1;//Calculate 1-9 from row and column
-			b.setText(String.valueOf(text));
-	    		v.addView(b, column);
-	    	}
-		}
 	}
 	private void NewGame() {
 		backendsudoku = new BackendSudoku();
@@ -391,7 +391,7 @@ public class Game extends Activity {
 			column = rand.nextInt(SIZE);
 			Button cellText = getCell(sudokuGridLayout, row, column);
 			if (cellText.getText().toString().equals("")) {
-				cellText.requestFocus();
+				//TODO request focus to see which cell was filled
 				cellText.setText(Integer.toString(backendsudoku.solved_grid[row][column]));
 				((Button) findViewById(R.id.HelpButton)).requestFocus();
 				return;
@@ -629,7 +629,6 @@ public class Game extends Activity {
 		Log.d(TAG, "Game Won");
 		MyChronometer c = ((MyChronometer) findViewById(R.id.chronometer));
 		c.stop();
-		check(false);// uncheck the game in background
 		showWonMessage();
 		saveHighscore(c.getText().toString());
 	}
@@ -637,8 +636,6 @@ public class Game extends Activity {
 	private void showWonMessage() {
 	    AlertDialog d = new AlertDialog.Builder(this)
 	    	.setIcon(R.drawable.icon)
-	    	.setTitle(R.string.Won_Title)
-	    	.setMessage(R.string.Won_Mesage)
 	    	.setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 	    	    public void onClick(DialogInterface dialog, int whichButton) {
 	    		/* User clicked OK so do some stuff */
@@ -651,8 +648,7 @@ public class Game extends Activity {
 	    			Game.this.finish();
 	    		    }
 	    	}).setCancelable(false).create();
-	    d.show();
-	    setButtonsBackground(d);
+	    MyDialog.showCustomisedDialog(d, getString(R.string.Won_Title), getString(R.string.Won_Mesage));
 	}
 
     private void saveHighscore(String newTime) {
@@ -706,7 +702,6 @@ public class Game extends Activity {
 		else
 			msg = msg.replace("de", "De");
 		AlertDialog d = new AlertDialog.Builder(this)
-		    .setMessage(msg)
 		    .setPositiveButton(MyApp.getPositiveText(), new DialogInterface.OnClickListener() {
 		        public void onClick(DialogInterface dialog, int whichButton) {
 		        	saveGame();
@@ -720,24 +715,10 @@ public class Game extends Activity {
 		        		exitGame();
 		        }
 		    }).create();
-		d.show();
-		setButtonsBackground(d);
+		MyDialog.showCustomisedDialog(d, msg);
 	}
 
-	/**
-	 * @param alertDialog
-	 */
-	private void setButtonsBackground(AlertDialog alertDialog) {//TODO blur background on all dialogs
-		Button b = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-		if (b != null)
-			b.setBackgroundResource(R.drawable.button);
-		b = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-		if (b != null)
-			b.setBackgroundResource(R.drawable.button);
-		b = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL);
-		if (b != null)
-			b.setBackgroundResource(R.drawable.button);
-	}
+
 
 	private void tryToSaveGame(boolean saveAndQuit) {
 		if (MyApp.saved_game_exists){

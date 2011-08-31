@@ -28,7 +28,7 @@
 
 	<string name="Won_Title">Congrats, You Won!</string>
 
-	<string name="Won_Mesage">Play again?\n Tap Menu to exit the game</string>
+	<string name="Won_Mesage">Play again?</string>
 
 	<string name="no_game_to_load">No game to load</string>
 
@@ -40,14 +40,15 @@
 
 
 	<!--    Menu Activity    -->
-	
+
 	<string name="Easy">Easy</string>
 	<string name="Medium">Medium</string>
 	<string name="Hard">Hard</string>
 
 	<string-array name="Feedback_Message">
-		<item>Any comments or ideas are welcome. Do you want to share some piece of mind?</item>
-		<item>.\nWe would really apreciate it.</item>
+		<item>Any comments or ideas are welcome. Do you want to share some
+			piece of mind?</item>
+		<item>\nWe would really apreciate it.</item>
 	</string-array>
 
 	
