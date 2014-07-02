@@ -8,7 +8,7 @@
 
 	<string name="DevelopedBy">developed by the second \'S\' of ESIS</string>
 	<string name="app_name">ESISudoku</string>
-	<string name="app_email">sebasguillen@gmail.com</string>		
+	<string name="app_email">someone@example.com</string>		
 	<string name="i_dont_care">Good to know</string>
 	<string name="eula_title">Licence Agreement</string>
 	<string name="refuse">Don\'t accept</string>
